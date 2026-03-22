@@ -109,12 +109,12 @@
 // ============================================================
 // Replace this URL with your deployed Cloudflare Worker URL
 const WORKER_URL = 'https://darsh-ai-proxy.darshkodwani13.workers.dev';
-const ACCESS_TOKEN_KEY = 'darsh_private_access_token';
+const ACCESS_PASSCODE_KEY = 'darsh_private_passcode';
 
-let recruiterAccessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY) || '';
+let recruiterPasscode = sessionStorage.getItem(ACCESS_PASSCODE_KEY) || '';
 
 function updateAccessUI() {
-    const unlocked = Boolean(recruiterAccessToken);
+    const unlocked = Boolean(recruiterPasscode);
     const status = document.getElementById('accessStatus');
     const unlockBtn = document.getElementById('unlockBtn');
     const relockBtn = document.getElementById('relockBtn');
@@ -126,23 +126,24 @@ function updateAccessUI() {
 
 async function unlockPrivateMode() {
     const passcode = window.prompt('Enter recruiter passcode');
-    if (!passcode) return;
+    const normalizedPasscode = (passcode || '').trim();
+    if (!normalizedPasscode) return;
 
     try {
         const response = await fetch(`${WORKER_URL}/unlock`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ passcode })
+            body: JSON.stringify({ passcode: normalizedPasscode })
         });
 
         const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.accessToken) {
+        if (!response.ok) {
             alert(data.error || 'Invalid passcode');
             return;
         }
 
-        recruiterAccessToken = data.accessToken;
-        sessionStorage.setItem(ACCESS_TOKEN_KEY, recruiterAccessToken);
+        recruiterPasscode = normalizedPasscode;
+        sessionStorage.setItem(ACCESS_PASSCODE_KEY, recruiterPasscode);
         updateAccessUI();
         showResponse('Recruiter mode unlocked. You can now ask detailed questions about confidential case studies.');
     } catch {
@@ -151,8 +152,8 @@ async function unlockPrivateMode() {
 }
 
 function relockPrivateMode() {
-    recruiterAccessToken = '';
-    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+    recruiterPasscode = '';
+    sessionStorage.removeItem(ACCESS_PASSCODE_KEY);
     updateAccessUI();
     showResponse('Recruiter mode has been relocked.');
 }
@@ -905,13 +906,13 @@ async function sendMessage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: conversationHistory,
-                accessToken: recruiterAccessToken || undefined,
+                passcode: recruiterPasscode || undefined,
             })
         });
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            if (response.status === 401 && recruiterAccessToken) {
+            if (response.status === 401 && recruiterPasscode) {
                 relockPrivateMode();
             }
             throw new Error(errorData.error || `Request failed (${response.status})`);
