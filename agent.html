@@ -796,6 +796,7 @@ function toggleVoiceInput() {
 let currentUtterance = null;
 let speechUnlocked = false;
 let speechCleanupTimer = null;
+let speechUnlockAttempts = 0;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
@@ -814,18 +815,44 @@ function setSpeakingUI(active) {
 }
 
 function unlockSpeechOnGesture() {
-    if (speechUnlocked || !window.speechSynthesis) return;
-    speechUnlocked = true;
-    const primer = new SpeechSynthesisUtterance(' ');
+    if (!window.speechSynthesis) return;
+    if (speechUnlocked) return;
+
+    const synth = window.speechSynthesis;
+    const primer = new SpeechSynthesisUtterance('ready');
     primer.volume = 0;
     primer.rate = 1;
     primer.pitch = 1;
+    let didConfirmUnlock = false;
+
+    const confirmUnlock = () => {
+        if (didConfirmUnlock) return;
+        didConfirmUnlock = true;
+        speechUnlocked = true;
+    };
+
+    primer.onstart = confirmUnlock;
+    primer.onend = confirmUnlock;
+    primer.onerror = () => {
+        speechUnlocked = false;
+    };
+
     try {
         // Prime iOS Safari audio session so later async speak calls are audible.
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(primer);
+        synth.cancel();
+        synth.resume();
+        synth.speak(primer);
+        speechUnlockAttempts += 1;
+
+        // If Safari accepted the utterance, synth is often speaking/pending very briefly.
+        setTimeout(() => {
+            if (synth.speaking || synth.pending) {
+                speechUnlocked = true;
+            }
+        }, 180);
     } catch (_) {
         // No-op: some browsers may reject the primer utterance.
+        speechUnlocked = false;
     }
 }
 
@@ -857,6 +884,12 @@ function speakText(text) {
     if (!toggle.checked || !window.speechSynthesis) return;
 
     unlockSpeechOnGesture();
+
+    // iOS Safari occasionally needs more than one unlock attempt before async speech is audible.
+    if (isIOS && !speechUnlocked && speechUnlockAttempts < 4) {
+        setTimeout(unlockSpeechOnGesture, 120);
+    }
+
     window.speechSynthesis.cancel();
     if (speechCleanupTimer) {
         clearTimeout(speechCleanupTimer);
@@ -1037,14 +1070,28 @@ async function sendMessage() {
 // Auto-resize textarea + initial fade-in
 document.addEventListener('DOMContentLoaded', () => {
     const textarea = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const micBtn = document.getElementById('micBtn');
+    const voiceToggle = document.getElementById('voiceToggle');
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     });
 
-    // Unlock speech audio on first touch/click for Safari/iOS reliability.
-    document.addEventListener('touchend', unlockSpeechOnGesture, { once: true, passive: true });
-    document.addEventListener('click', unlockSpeechOnGesture, { once: true, passive: true });
+    // Prime speech during direct user interactions for Safari/iOS reliability.
+    ['touchstart', 'pointerdown', 'click', 'keydown'].forEach((eventName) => {
+        document.addEventListener(eventName, unlockSpeechOnGesture, { passive: true });
+    });
+    if (sendBtn) {
+        sendBtn.addEventListener('touchstart', unlockSpeechOnGesture, { passive: true });
+        sendBtn.addEventListener('click', unlockSpeechOnGesture, { passive: true });
+    }
+    if (micBtn) {
+        micBtn.addEventListener('touchstart', unlockSpeechOnGesture, { passive: true });
+    }
+    if (voiceToggle) {
+        voiceToggle.addEventListener('change', unlockSpeechOnGesture);
+    }
 
     updateAccessUI();
     // Fade in the initial response
