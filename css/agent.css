@@ -12,6 +12,11 @@
     align-items: center;
     min-height: calc(100vh - 80px);
     justify-content: center;
+    border-radius: 20px;
+    border: 1px solid rgba(158, 197, 255, 0.2);
+    background: linear-gradient(145deg, rgba(8, 20, 43, 0.38), rgba(7, 15, 31, 0.5));
+    backdrop-filter: blur(8px);
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
 }
 
 /* ---------- Avatar Stage ---------- */
@@ -264,6 +269,8 @@
     max-height: 40vh;
     overflow-y: auto;
     width: 100%;
+    border-radius: 14px;
+    background: rgba(6, 15, 31, 0.2);
 }
 
 .response-text {
@@ -367,6 +374,8 @@
 .input-bar {
     width: 100%;
     padding: 0.75rem 0 0.5rem;
+    border-radius: 14px;
+    background: rgba(6, 15, 31, 0.22);
 }
 
 .input-controls {
