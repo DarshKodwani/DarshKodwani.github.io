@@ -372,26 +372,47 @@ function drawFaceShape() {
 }
 
 function drawHair() {
-    ctx.fillStyle = '#1a1514';
+    // New hairstyle: side-swept top with lighter front strands
+    ctx.fillStyle = '#181311';
     ctx.beginPath();
-    ctx.moveTo(130, 134);
-    ctx.quadraticCurveTo(132, 84, 182, 70);
-    ctx.quadraticCurveTo(230, 56, 268, 88);
-    ctx.quadraticCurveTo(288, 106, 286, 148);
-    ctx.quadraticCurveTo(266, 126, 242, 116);
-    ctx.quadraticCurveTo(202, 96, 162, 104);
-    ctx.quadraticCurveTo(146, 108, 130, 134);
+    ctx.moveTo(128, 142);
+    ctx.quadraticCurveTo(130, 90, 182, 72);
+    ctx.quadraticCurveTo(238, 54, 274, 96);
+    ctx.quadraticCurveTo(286, 111, 284, 150);
+    ctx.quadraticCurveTo(266, 124, 234, 113);
+    ctx.quadraticCurveTo(198, 102, 164, 109);
+    ctx.quadraticCurveTo(144, 113, 128, 142);
     ctx.closePath();
     ctx.fill();
 
+    // Side sweep across forehead
+    ctx.fillStyle = '#221916';
     ctx.beginPath();
-    ctx.moveTo(142, 132);
-    ctx.quadraticCurveTo(166, 90, 212, 92);
-    ctx.quadraticCurveTo(246, 94, 268, 120);
-    ctx.quadraticCurveTo(238, 118, 214, 112);
-    ctx.quadraticCurveTo(180, 104, 142, 132);
+    ctx.moveTo(144, 129);
+    ctx.quadraticCurveTo(174, 90, 224, 94);
+    ctx.quadraticCurveTo(250, 98, 270, 118);
+    ctx.quadraticCurveTo(240, 120, 214, 116);
+    ctx.quadraticCurveTo(188, 112, 164, 118);
+    ctx.quadraticCurveTo(154, 122, 144, 129);
     ctx.closePath();
     ctx.fill();
+
+    // Layered fringe strands
+    ctx.strokeStyle = 'rgba(38, 28, 24, 0.9)';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(160, 116);
+    ctx.quadraticCurveTo(168, 126, 158, 136);
+    ctx.moveTo(178, 112);
+    ctx.quadraticCurveTo(186, 124, 176, 136);
+    ctx.moveTo(198, 110);
+    ctx.quadraticCurveTo(206, 122, 197, 135);
+    ctx.moveTo(218, 111);
+    ctx.quadraticCurveTo(226, 122, 218, 134);
+    ctx.moveTo(236, 115);
+    ctx.quadraticCurveTo(244, 124, 238, 134);
+    ctx.stroke();
 }
 
 function drawBrows() {
