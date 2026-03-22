@@ -231,6 +231,9 @@ body.slick-theme .teaching_content > div[class]:not(.intro_comment) {
     grid-template-columns: 260px 1fr;
     gap: 1rem 1.2rem;
     align-items: start;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
 }
 
 body.slick-theme .teaching_content > div[class]:not(.intro_comment) h3 {
@@ -251,6 +254,16 @@ body.slick-theme .teaching_content > div[class]:not(.intro_comment) > div {
     margin: 0 !important;
     width: auto !important;
     height: auto !important;
+}
+
+body.slick-theme .teaching_content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+body.slick-theme .teaching_content .notesButton {
+    margin: 0.6rem 0 0 !important;
 }
 
 body.slick-theme .skills-image {
