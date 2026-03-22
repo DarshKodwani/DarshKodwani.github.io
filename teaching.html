@@ -1,17 +1,17 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <!-- PAGE TITLE -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Darsh | Teaching</title>
     <link rel="icon" type="image/" href="Images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/slick-theme.css">
-    <link rel="stylesheet" href="css/teaching.css">
     <link rel="stylesheet" href="css/site-shell.css">
+    <link rel="stylesheet" href="css/content-pages.css">
     <script src="assets/js/site-shell.js" defer></script>
 </head>
-
 <body class="slick-theme">
 
     <video class="bg-video" autoplay muted loop playsinline webkit-playsinline>
@@ -36,191 +36,117 @@
         </nav>
     </header>
 
-    <div class="teaching_content">
-        <h1>
-            Teaching
-        </h1>
+    <main class="page-wrap page-stack">
+        <section class="page-hero">
+            <div class="page-copy">
+                <div class="page-kicker">Teaching</div>
+                <h1 class="page-title">Physics notes designed for clarity, intuition, and mathematical depth.</h1>
+                <p class="page-lead">From high school classrooms to master's-level courses, teaching has always been central to Darsh's work. The notes below are structured to help students build first-principles understanding rather than memorizing formulas.</p>
+            </div>
+            <div class="hero-side">
+                <div class="hero-badge">
+                    <strong>Teaching philosophy</strong>
+                    <p>Start with concepts, move to structure, then reinforce through worked examples and mathematical formalism.</p>
+                </div>
+                <div class="hero-chip">
+                    <strong>Range</strong>
+                    <p>Topics span foundational mechanics to advanced field theory, with both intuition-first and mathematically rigorous pathways.</p>
+                </div>
+            </div>
+        </section>
 
+        <section class="metric-strip">
+            <div class="metric-item"><span class="metric-value">8</span><span class="metric-label">Core note sets across theoretical and mathematical physics</span></div>
+            <div class="metric-item"><span class="metric-value">Multi-level</span><span class="metric-label">Material suitable from early university to advanced learners</span></div>
+            <div class="metric-item"><span class="metric-value">Approach</span><span class="metric-label">Conceptual narrative + equations + structured progression</span></div>
+        </section>
 
-        <div class="intro_comment">
-            <p>
-                Teaching is something I am very passionate about. I have taught at a variety of academic levels, from high school students to masters level physics courses. Some of my old lecture notes (and other resources I have found useful) can be found below.
-            </p>
-        </div>
+        <section class="page-panel">
+            <div class="section-subtitle">Course Notes</div>
+            <h2 class="section-title">Browse by topic</h2>
+            <div class="course-grid">
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/qft.png" alt="Quantum Field Theory">
+                    <div class="course-body">
+                        <h3 class="card-title">Quantum Field Theory</h3>
+                        <div class="card-meta">Advanced Theoretical Physics</div>
+                        <p>QFT is the framework describing fundamental interactions (except gravity). These notes were built during deep self-study and focus on conceptual structure alongside formal derivations.</p>
+                        <a class="link-button" href="Documents/teaching/QFT.pdf">Open QFT Notes</a>
+                    </div>
+                </article>
 
-        <div class="QFT">
-            <h3>
-                Quantum field theory
-            </h3>
-            <div class="QFTimage">
-                <img class="qft-image" src="Images/teaching/qft.png" width="100%" height="200">
-            </div>
-            <div class="QFTtext">
-                <p>
-                    QFT is the framework which describes all the fundamental forces (except gravity) in our universe. These notes were made when i was first learning QFT through my own readings.
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/QFT.pdf" class="notesUrl">
-                            QFT notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/gr.png" alt="General Relativity">
+                    <div class="course-body">
+                        <h3 class="card-title">General Relativity</h3>
+                        <div class="card-meta">Geometry and Gravity</div>
+                        <p>Comprehensive GR notes connecting geometric ideas with physical interpretation, designed to make tensor methods and curved spacetime reasoning more approachable.</p>
+                        <a class="link-button" href="Documents/teaching/GR.pdf">Open GR Notes</a>
+                    </div>
+                </article>
 
-        <div class="GR">
-            <h3>
-                General relativity
-            </h3>
-            <div class="GRimage">
-                <img class="gr-image" src="Images/teaching/gr.png" width="100%" height="200">
-            </div>
-            <div class="GRtext">
-                <p>
-                    General relativity (GR) is our best theory of gravity. It combines lots of areas of physics, geometry and abstract mathematics. Below are comprehensive notes that I have written for understanding general relativity from a physics perspective.
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/GR.pdf" class="notesUrl">
-                            GR notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/cm.jpeg" alt="Classical Mechanics">
+                    <div class="course-body">
+                        <h3 class="card-title">Classical Mechanics</h3>
+                        <div class="card-meta">Lagrangian and Hamiltonian Methods</div>
+                        <p>Mathematical classical mechanics notes emphasizing variational principles, generalized coordinates, canonical transformations, and problem-solving structure.</p>
+                        <a class="link-button" href="Documents/teaching/Classical_mechanics.pdf">Open Classical Mechanics Notes</a>
+                    </div>
+                </article>
 
-        <div class="CM">
-            <h3>
-                Classical mechanics
-            </h3>
-            <div class="CMimage">
-                <img class="cm-image" src="Images/teaching/cm.jpeg" width="100%" height="200">
-            </div>
-            <div class="CMtext">
-                <p>
-                    Classical mechanics describes most of the world we see around us. It is underpinned by a beautiful mathematical theory of Hamiltonian and Lagrangian mechanics. These notes present the mathematical version of classical mechanics often taught in final year
-                    undergraduate courses.
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/Classical_mechanics.pdf" class="notesUrl">
-                            Classical mechanics notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/maths.png" alt="Foundations of Mathematics">
+                    <div class="course-body">
+                        <h3 class="card-title">Foundations of Mathematics</h3>
+                        <div class="card-meta">Logic, Set Theory, Group Theory</div>
+                        <p>A foundations-first route through mathematical logic and structure, designed to strengthen rigor and proof-oriented thinking for physics and data science learners.</p>
+                        <a class="link-button" href="Documents/teaching/Foundations.pdf">Open Foundations Notes</a>
+                    </div>
+                </article>
 
-        <div class="maths">
-            <h3>
-                Foundations of mathematics
-            </h3>
-            <div class="mathsimage">
-                <img class="maths-image" src="Images/teaching/maths.png" width="100%" height="200">
-            </div>
-            <div class="mathstext">
-                <p>
-                    One thing that is often under-appreciated is that mathematics is actually a subset of philosophy (its a branch of logic). In these notes we go through the foundations of mathematics, from logic, set theory and group theory.
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/Foundations.pdf" class="notesUrl">
-                            Foundations of mathematics notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/qt.png" alt="Quantum Theory">
+                    <div class="course-body">
+                        <h3 class="card-title">Quantum Theory</h3>
+                        <div class="card-meta">Bra-Ket / Vector Space Formulation</div>
+                        <p>Third-year undergraduate level notes based on the Hilbert-space viewpoint of quantum theory, with focus on operators, states, and formalism fluency.</p>
+                        <a class="link-button" href="Documents/teaching/qt.pdf">Open Quantum Theory Notes</a>
+                    </div>
+                </article>
 
-        <div class="QT">
-            <h3>
-                Quantum theory
-            </h3>
-            <div class="QTimage">
-                <img class="maths-image" src="Images/teaching/qt.png" width="100%" height="200">
-            </div>
-            <div class="QTtext">
-                <p>
-                    Quantum mechanics is the most fundamental description of reality at the subatomic scale. These notes are from a 3rd year undergraduate course on quantum theory at Royal Holloway. These notes focus on the vector space (bra, ket) formulation.
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/qt.pdf" class="notesUrl">
-                            Quantum theory notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/qm.jpeg" alt="Quantum Mechanics">
+                    <div class="course-body">
+                        <h3 class="card-title">Quantum Mechanics</h3>
+                        <div class="card-meta">Wavefunction Formulation</div>
+                        <p>Wavefunction-based quantum mechanics notes that complement the vector-space treatment, useful for learners transitioning from intuition to formal operator methods.</p>
+                        <a class="link-button" href="Documents/teaching/qm.pdf">Open Quantum Mechanics Notes</a>
+                    </div>
+                </article>
 
-        <div class="QM">
-            <h3>
-                Quantum mechanics
-            </h3>
-            <div class="QMimage">
-                <img class="maths-image" src="Images/teaching/qm.jpeg" width="100%" height="200">
-            </div>
-            <div class="QMtext">
-                <p>
-                    These are notes for quamtum mechanics taught in the wavefunction formaultaion, which is known to be limited. The most general formulation of quamtum mechanics is through the formulation of vector spaces (see Quantum theory notes). These notes were also
-                    written before I propely learnt latex!
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/qm.pdf" class="notesUrl">
-                            Quantum mechanics notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/sm.jpeg" alt="Statistical Mechanics">
+                    <div class="course-body">
+                        <h3 class="card-title">Statistical Mechanics</h3>
+                        <div class="card-meta">Thermodynamics and Ensembles</div>
+                        <p>Introductory-to-intermediate notes on ensembles, entropy, partition functions, and the bridge between microscopic statistics and macroscopic thermodynamic laws.</p>
+                        <a class="link-button" href="Documents/teaching/sm.pdf">Open Statistical Mechanics Notes</a>
+                    </div>
+                </article>
 
-        <div class="SM">
-            <h3>
-                Statistical mechanics
-            </h3>
-            <div class="SMimage">
-                <img class="maths-image" src="Images/teaching/sm.jpeg" width="100%" height="200">
+                <article class="course-card">
+                    <img class="course-thumb" src="Images/teaching/magic.jpeg" alt="Magic of Physics">
+                    <div class="course-body">
+                        <h3 class="card-title">Magic of Physics</h3>
+                        <div class="card-meta">Science for Non-Majors</div>
+                        <p>Summary notes for a University of Toronto course built for non-physics students, designed to make core physical ideas engaging and accessible.</p>
+                        <a class="link-button" href="Documents/teaching/magic_of_physics.pdf">Open Magic of Physics Notes</a>
+                    </div>
+                </article>
             </div>
-            <div class="SMtext">
-                <p>
-                    Statistical mechanics describes how ensemble of particles and fields behaves. This is an introductory course on statistical mechanics and how it relates to thermodynamics. More advanced courses also show deep connections between statistics and field theory
-                    but that is not covered here.
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/sm.pdf" class="notesUrl">
-                            Statistical mechanics notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
-
-        <div class="magic">
-            <h3>
-                Magic of physics
-            </h3>
-            <div class="magicimage">
-                <img class="maths-image" src="Images/teaching/magic.jpeg" width="100%" height="200">
-            </div>
-            <div class="magictext">
-                <p>
-                    These are summary notes for a course I taught at the University of Toronto. It was course aimed at non-physics majors who had to take a science course to complete their credits.
-                </p>
-                <p>
-                    <button type="button" class="btn btn-secondary btn-lg btn-block notesButton">
-                        <a href="Documents/teaching/magic_of_physics.pdf" class="notesUrl">
-                            Magic of physics notes
-                        </a>
-                    </button>
-                </p>
-            </div>
-        </div>
-
-    </div>
+        </section>
+    </main>
 
 </body>
-
 </html>
