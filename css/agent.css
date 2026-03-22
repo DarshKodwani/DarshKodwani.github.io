@@ -271,7 +271,7 @@
     color: rgba(255, 255, 255, 0.35);
 }
 
-.input-wrapper button {
+.input-wrapper #sendBtn {
     background: #2563eb;
     border: none;
     color: white;
@@ -286,11 +286,11 @@
     transition: background 0.2s ease;
 }
 
-.input-wrapper button:hover:not(:disabled) {
+.input-wrapper #sendBtn:hover:not(:disabled) {
     background: #1d4ed8;
 }
 
-.input-wrapper button:disabled {
+.input-wrapper #sendBtn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
@@ -300,6 +300,164 @@
     font-size: 0.72rem;
     color: rgba(255, 255, 255, 0.3);
     margin: 0.5rem 0 0;
+}
+
+/* ---------- Speaking Animation Rings ---------- */
+
+.speaking-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.avatar-container.speaking .speaking-rings {
+    opacity: 1;
+}
+
+.ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid rgba(37, 99, 235, 0.5);
+}
+
+.ring-1 {
+    width: 115px;
+    height: 115px;
+    animation: ring-pulse 1.5s ease-in-out infinite;
+}
+
+.ring-2 {
+    width: 130px;
+    height: 130px;
+    animation: ring-pulse 1.5s ease-in-out 0.3s infinite;
+}
+
+.ring-3 {
+    width: 145px;
+    height: 145px;
+    animation: ring-pulse 1.5s ease-in-out 0.6s infinite;
+}
+
+@keyframes ring-pulse {
+    0%, 100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.avatar-container.speaking .agent-avatar {
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: 0 0 25px rgba(37, 99, 235, 0.3);
+}
+
+/* User speaking (mic active) */
+.avatar-container.user-speaking .agent-avatar {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
+}
+
+/* ---------- Voice Toggle ---------- */
+
+.voice-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.toggle-text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.82rem;
+}
+
+.toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.toggle-label input {
+    display: none;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 22px;
+    transition: background 0.3s ease;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.toggle-label input:checked + .toggle-slider {
+    background: #2563eb;
+}
+
+.toggle-label input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+}
+
+/* ---------- Mic Button ---------- */
+
+.mic-btn {
+    background: transparent !important;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.mic-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.mic-btn.listening {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.15) !important;
+    animation: mic-pulse 1s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
 }
 
 /* ---------- Active Nav Highlight ---------- */

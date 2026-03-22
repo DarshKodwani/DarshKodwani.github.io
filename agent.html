@@ -29,14 +29,26 @@
         </nav>
 
         <div class="agent-page">
-            <!-- Hero -->
+            <!-- Avatar Hero -->
             <div class="agent-hero">
-                <div class="avatar-container">
-                    <img src="Images/DK_new.jpg" alt="Darsh Kodwani" class="agent-avatar">
+                <div class="avatar-container" id="avatarContainer">
+                    <img src="https://github.com/DarshKodwani.png" alt="Darsh Kodwani" class="agent-avatar" id="agentAvatar">
                     <span class="status-dot"></span>
+                    <div class="speaking-rings" id="speakingRings">
+                        <span class="ring ring-1"></span>
+                        <span class="ring ring-2"></span>
+                        <span class="ring ring-3"></span>
+                    </div>
                 </div>
                 <h1>Ask Darsh's AI</h1>
                 <p class="agent-subtitle">I'm an AI trained on Darsh's background — his research in cosmology at Oxford, his work in ML at Microsoft, and everything in between. Ask me anything you'd ask him in an interview.</p>
+                <div class="voice-toggle">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="voiceToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-text">Voice responses</span>
+                </div>
             </div>
 
             <!-- Chat Container -->
@@ -44,7 +56,7 @@
                 <div class="chat-messages" id="chatMessages">
                     <!-- Welcome message -->
                     <div class="message assistant-message">
-                        <img src="Images/DK_new.jpg" alt="AI" class="message-avatar">
+                        <img src="https://github.com/DarshKodwani.png" alt="AI" class="message-avatar">
                         <div class="message-bubble">
                             Hi! I'm Darsh's AI assistant. I know all about his journey — from studying astrophysics at Oxford to building ML systems at Microsoft. What would you like to know about him?
                         </div>
@@ -62,6 +74,14 @@
                 <!-- Input area -->
                 <div class="chat-input-area">
                     <div class="input-wrapper">
+                        <button id="micBtn" onclick="toggleVoiceInput()" aria-label="Voice input" class="mic-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </button>
                         <textarea id="userInput" placeholder="Ask me anything about Darsh..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
                         <button id="sendBtn" onclick="sendMessage()" aria-label="Send message">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -165,7 +185,113 @@ let conversationHistory = [
 ];
 
 // ============================================================
-// FUNCTIONS
+// VOICE: Speech Recognition (input)
+// ============================================================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+            .map(r => r[0].transcript)
+            .join('');
+        document.getElementById('userInput').value = transcript;
+        // Auto-resize textarea
+        const ta = document.getElementById('userInput');
+        ta.style.height = 'auto';
+        ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+    };
+
+    recognition.onend = () => {
+        isListening = false;
+        document.getElementById('micBtn').classList.remove('listening');
+        document.getElementById('avatarContainer').classList.remove('user-speaking');
+        // Auto-send when voice input finishes (if there's text)
+        const text = document.getElementById('userInput').value.trim();
+        if (text) sendMessage();
+    };
+
+    recognition.onerror = (event) => {
+        isListening = false;
+        document.getElementById('micBtn').classList.remove('listening');
+        document.getElementById('avatarContainer').classList.remove('user-speaking');
+        if (event.error !== 'no-speech') {
+            console.error('Speech recognition error:', event.error);
+        }
+    };
+}
+
+function toggleVoiceInput() {
+    if (!recognition) {
+        alert('Voice input is not supported in your browser. Try Chrome or Edge.');
+        return;
+    }
+    if (isListening) {
+        recognition.stop();
+        isListening = false;
+        document.getElementById('micBtn').classList.remove('listening');
+        document.getElementById('avatarContainer').classList.remove('user-speaking');
+    } else {
+        recognition.start();
+        isListening = true;
+        document.getElementById('micBtn').classList.add('listening');
+        document.getElementById('avatarContainer').classList.add('user-speaking');
+    }
+}
+
+// ============================================================
+// VOICE: Speech Synthesis (output)
+// ============================================================
+let currentUtterance = null;
+
+function speakText(text) {
+    const toggle = document.getElementById('voiceToggle');
+    if (!toggle.checked || !window.speechSynthesis) return;
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    // Prefer a natural-sounding English voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.name.includes('Google UK English Male'))
+        || voices.find(v => v.name.includes('Daniel'))
+        || voices.find(v => v.lang.startsWith('en') && v.localService);
+    if (preferred) utterance.voice = preferred;
+
+    utterance.onstart = () => {
+        document.getElementById('avatarContainer').classList.add('speaking');
+    };
+    utterance.onend = () => {
+        document.getElementById('avatarContainer').classList.remove('speaking');
+        currentUtterance = null;
+    };
+    utterance.onerror = () => {
+        document.getElementById('avatarContainer').classList.remove('speaking');
+        currentUtterance = null;
+    };
+
+    currentUtterance = utterance;
+    window.speechSynthesis.speak(utterance);
+}
+
+// Pre-load voices (required for some browsers)
+if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+// ============================================================
+// CHAT FUNCTIONS
 // ============================================================
 
 function handleKeyDown(e) {
@@ -188,7 +314,7 @@ function addMessage(role, content) {
 
     if (role === 'assistant') {
         const avatar = document.createElement('img');
-        avatar.src = 'Images/DK_new.jpg';
+        avatar.src = 'https://github.com/DarshKodwani.png';
         avatar.alt = 'AI';
         avatar.className = 'message-avatar';
         msgDiv.appendChild(avatar);
@@ -211,7 +337,7 @@ function addTypingIndicator() {
     msgDiv.id = 'typing-indicator';
 
     const avatar = document.createElement('img');
-    avatar.src = 'Images/DK_new.jpg';
+    avatar.src = 'https://github.com/DarshKodwani.png';
     avatar.alt = 'AI';
     avatar.className = 'message-avatar';
     msgDiv.appendChild(avatar);
@@ -235,6 +361,10 @@ async function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
 
+    // Stop any ongoing speech when a new message is sent
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    document.getElementById('avatarContainer').classList.remove('speaking');
+
     // Hide suggestions after first message
     const suggestions = document.getElementById('suggestions');
     if (suggestions) suggestions.style.display = 'none';
@@ -247,6 +377,7 @@ async function sendMessage() {
     // Disable input while waiting
     input.disabled = true;
     document.getElementById('sendBtn').disabled = true;
+    document.getElementById('micBtn').disabled = true;
 
     // Add to conversation
     conversationHistory.push({ role: 'user', content: text });
@@ -276,6 +407,9 @@ async function sendMessage() {
         conversationHistory.push({ role: 'assistant', content: reply });
         addMessage('assistant', reply);
 
+        // Speak the response
+        speakText(reply);
+
     } catch (err) {
         removeTypingIndicator();
         addMessage('assistant', `Sorry, I'm having trouble connecting right now. You can reach Darsh directly at darshkodwani13@gmail.com. (Error: ${err.message})`);
@@ -284,6 +418,7 @@ async function sendMessage() {
     // Re-enable input
     input.disabled = false;
     document.getElementById('sendBtn').disabled = false;
+    document.getElementById('micBtn').disabled = false;
     input.focus();
 }
 
