@@ -29,8 +29,8 @@
         </nav>
 
         <div class="agent-page">
-            <!-- Avatar Hero -->
-            <div class="agent-hero">
+            <!-- Avatar focal point -->
+            <div class="avatar-stage" id="avatarStage">
                 <div class="avatar-container" id="avatarContainer">
                     <img src="https://github.com/DarshKodwani.png" alt="Darsh Kodwani" class="agent-avatar" id="agentAvatar">
                     <span class="status-dot"></span>
@@ -40,42 +40,40 @@
                         <span class="ring ring-3"></span>
                     </div>
                 </div>
-                <h1>Ask Darsh's AI</h1>
-                <p class="agent-subtitle">I'm an AI trained on Darsh's background — his research in cosmology at Oxford, his work in ML at Microsoft, and everything in between. Ask me anything you'd ask him in an interview.</p>
-                <div class="voice-toggle">
-                    <label class="toggle-label">
-                        <input type="checkbox" id="voiceToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-text">Voice responses</span>
+                <div class="avatar-name">Darsh's AI</div>
+            </div>
+
+            <!-- Response area (replaces on each answer) -->
+            <div class="response-area" id="responseArea">
+                <div class="response-text" id="responseText">
+                    Hi! I'm Darsh's AI. Ask me anything about his journey — from astrophysics at Oxford to building ML systems at Microsoft.
+                </div>
+                <div class="typing-dots" id="typingDots" style="display:none;">
+                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
                 </div>
             </div>
 
-            <!-- Chat Container -->
-            <div class="chat-container" id="chatContainer">
-                <div class="chat-messages" id="chatMessages">
-                    <!-- Welcome message -->
-                    <div class="message assistant-message">
-                        <img src="https://github.com/DarshKodwani.png" alt="AI" class="message-avatar">
-                        <div class="message-bubble">
-                            Hi! I'm Darsh's AI assistant. I know all about his journey — from studying astrophysics at Oxford to building ML systems at Microsoft. What would you like to know about him?
-                        </div>
+            <!-- Suggested questions -->
+            <div class="suggestions" id="suggestions">
+                <button class="suggestion-chip" onclick="askSuggestion(this)">What's Darsh's background?</button>
+                <button class="suggestion-chip" onclick="askSuggestion(this)">Tell me about his research</button>
+                <button class="suggestion-chip" onclick="askSuggestion(this)">What's his experience with ML &amp; AI?</button>
+                <button class="suggestion-chip" onclick="askSuggestion(this)">Why should we hire Darsh?</button>
+            </div>
+
+            <!-- Input bar -->
+            <div class="input-bar" id="inputBar">
+                <div class="input-controls">
+                    <div class="voice-toggle-inline">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="voiceToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <svg class="voice-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08"/></svg>
                     </div>
-                </div>
-
-                <!-- Suggested questions -->
-                <div class="suggestions" id="suggestions">
-                    <button class="suggestion-chip" onclick="askSuggestion(this)">What's Darsh's background?</button>
-                    <button class="suggestion-chip" onclick="askSuggestion(this)">Tell me about his research</button>
-                    <button class="suggestion-chip" onclick="askSuggestion(this)">What's his experience with ML &amp; AI?</button>
-                    <button class="suggestion-chip" onclick="askSuggestion(this)">Why should we hire Darsh?</button>
-                </div>
-
-                <!-- Input area -->
-                <div class="chat-input-area">
                     <div class="input-wrapper">
                         <button id="micBtn" onclick="toggleVoiceInput()" aria-label="Voice input" class="mic-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                                 <line x1="12" y1="19" x2="12" y2="23"></line>
@@ -84,14 +82,14 @@
                         </button>
                         <textarea id="userInput" placeholder="Ask me anything about Darsh..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
                         <button id="sendBtn" onclick="sendMessage()" aria-label="Send message">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="22" y1="2" x2="11" y2="13"></line>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                             </svg>
                         </button>
                     </div>
-                    <p class="input-disclaimer">AI responses are based on Darsh's public profile and may not capture every detail.</p>
                 </div>
+                <p class="input-disclaimer">AI responses are based on Darsh's public profile and may not capture every detail.</p>
             </div>
         </div>
     </div>
@@ -181,7 +179,7 @@ If asked something you don't know about Darsh, say so honestly and suggest they 
 // ============================================================
 let conversationHistory = [
     { role: 'system', content: SYSTEM_PROMPT },
-    { role: 'assistant', content: "Hi! I'm Darsh's AI assistant. I know all about his journey — from studying astrophysics at Oxford to building ML systems at Microsoft. What would you like to know about him?" }
+    { role: 'assistant', content: "Hi! I'm Darsh's AI. Ask me anything about his journey — from astrophysics at Oxford to building ML systems at Microsoft." }
 ];
 
 // ============================================================
@@ -202,7 +200,6 @@ if (SpeechRecognition) {
             .map(r => r[0].transcript)
             .join('');
         document.getElementById('userInput').value = transcript;
-        // Auto-resize textarea
         const ta = document.getElementById('userInput');
         ta.style.height = 'auto';
         ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
@@ -212,7 +209,6 @@ if (SpeechRecognition) {
         isListening = false;
         document.getElementById('micBtn').classList.remove('listening');
         document.getElementById('avatarContainer').classList.remove('user-speaking');
-        // Auto-send when voice input finishes (if there's text)
         const text = document.getElementById('userInput').value.trim();
         if (text) sendMessage();
     };
@@ -254,14 +250,12 @@ function speakText(text) {
     const toggle = document.getElementById('voiceToggle');
     if (!toggle.checked || !window.speechSynthesis) return;
 
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
-    // Prefer a natural-sounding English voice
     const voices = window.speechSynthesis.getVoices();
     const preferred = voices.find(v => v.name.includes('Google UK English Male'))
         || voices.find(v => v.name.includes('Daniel'))
@@ -284,14 +278,13 @@ function speakText(text) {
     window.speechSynthesis.speak(utterance);
 }
 
-// Pre-load voices (required for some browsers)
 if (window.speechSynthesis) {
     window.speechSynthesis.getVoices();
     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
 // ============================================================
-// CHAT FUNCTIONS
+// CONVERSATION FUNCTIONS
 // ============================================================
 
 function handleKeyDown(e) {
@@ -302,58 +295,30 @@ function handleKeyDown(e) {
 }
 
 function askSuggestion(btn) {
-    const text = btn.textContent;
-    document.getElementById('userInput').value = text;
+    document.getElementById('userInput').value = btn.textContent;
     sendMessage();
 }
 
-function addMessage(role, content) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `message ${role}-message`;
+function showResponse(text) {
+    const responseText = document.getElementById('responseText');
+    const typingDots = document.getElementById('typingDots');
+    typingDots.style.display = 'none';
 
-    if (role === 'assistant') {
-        const avatar = document.createElement('img');
-        avatar.src = 'https://github.com/DarshKodwani.png';
-        avatar.alt = 'AI';
-        avatar.className = 'message-avatar';
-        msgDiv.appendChild(avatar);
-    }
-
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble';
-    bubble.textContent = content;
-    msgDiv.appendChild(bubble);
-
-    messagesDiv.appendChild(msgDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    return bubble;
+    // Fade out, swap text, fade in
+    responseText.classList.remove('visible');
+    setTimeout(() => {
+        responseText.textContent = text;
+        responseText.classList.add('visible');
+    }, 200);
 }
 
-function addTypingIndicator() {
-    const messagesDiv = document.getElementById('chatMessages');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'message assistant-message';
-    msgDiv.id = 'typing-indicator';
-
-    const avatar = document.createElement('img');
-    avatar.src = 'https://github.com/DarshKodwani.png';
-    avatar.alt = 'AI';
-    avatar.className = 'message-avatar';
-    msgDiv.appendChild(avatar);
-
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble typing-bubble';
-    bubble.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
-    msgDiv.appendChild(bubble);
-
-    messagesDiv.appendChild(msgDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function removeTypingIndicator() {
-    const el = document.getElementById('typing-indicator');
-    if (el) el.remove();
+function showThinking() {
+    const responseText = document.getElementById('responseText');
+    const typingDots = document.getElementById('typingDots');
+    responseText.classList.remove('visible');
+    setTimeout(() => {
+        typingDots.style.display = 'flex';
+    }, 200);
 }
 
 async function sendMessage() {
@@ -361,16 +326,14 @@ async function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
 
-    // Stop any ongoing speech when a new message is sent
+    // Stop any ongoing speech
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     document.getElementById('avatarContainer').classList.remove('speaking');
 
-    // Hide suggestions after first message
+    // Hide suggestions after first question
     const suggestions = document.getElementById('suggestions');
     if (suggestions) suggestions.style.display = 'none';
 
-    // Add user message
-    addMessage('user', text);
     input.value = '';
     input.style.height = 'auto';
 
@@ -379,22 +342,17 @@ async function sendMessage() {
     document.getElementById('sendBtn').disabled = true;
     document.getElementById('micBtn').disabled = true;
 
-    // Add to conversation
     conversationHistory.push({ role: 'user', content: text });
 
-    // Show typing indicator
-    addTypingIndicator();
+    // Show thinking state
+    showThinking();
 
     try {
         const response = await fetch(WORKER_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: conversationHistory
-            })
+            body: JSON.stringify({ messages: conversationHistory })
         });
-
-        removeTypingIndicator();
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
@@ -405,14 +363,11 @@ async function sendMessage() {
         const reply = data.choices[0].message.content;
 
         conversationHistory.push({ role: 'assistant', content: reply });
-        addMessage('assistant', reply);
-
-        // Speak the response
+        showResponse(reply);
         speakText(reply);
 
     } catch (err) {
-        removeTypingIndicator();
-        addMessage('assistant', `Sorry, I'm having trouble connecting right now. You can reach Darsh directly at darshkodwani13@gmail.com. (Error: ${err.message})`);
+        showResponse(`Sorry, I'm having trouble connecting right now. You can reach Darsh directly at darshkodwani13@gmail.com.`);
     }
 
     // Re-enable input
@@ -422,13 +377,17 @@ async function sendMessage() {
     input.focus();
 }
 
-// Auto-resize textarea
+// Auto-resize textarea + initial fade-in
 document.addEventListener('DOMContentLoaded', () => {
     const textarea = document.getElementById('userInput');
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     });
+    // Fade in the initial response
+    setTimeout(() => {
+        document.getElementById('responseText').classList.add('visible');
+    }, 300);
 });
 </script>
 
