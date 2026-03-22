@@ -208,94 +208,6 @@ let headTiltTarget = 0;
 let headBob = 0;
 let browLift = 0;
 let pupilShift = 0;
-let speechWordTimer = null;
-let speechStartedAt = 0;
-let currentSpeechText = '';
-let visemeState = {
-    openness: 0.12,
-    width: 0.88,
-    roundness: 0.18,
-    squeeze: 0.1,
-    teeth: 0,
-    tongue: 0
-};
-let targetVisemeState = { ...visemeState };
-
-const VISEMES = {
-    rest:   { openness: 0.12, width: 0.88, roundness: 0.18, squeeze: 0.10, teeth: 0.00, tongue: 0.00 },
-    closed: { openness: 0.02, width: 0.82, roundness: 0.10, squeeze: 0.72, teeth: 0.00, tongue: 0.00 },
-    wide:   { openness: 0.36, width: 1.18, roundness: 0.04, squeeze: 0.10, teeth: 0.55, tongue: 0.05 },
-    open:   { openness: 0.70, width: 0.98, roundness: 0.16, squeeze: 0.05, teeth: 0.18, tongue: 0.45 },
-    round:  { openness: 0.52, width: 0.72, roundness: 0.70, squeeze: 0.08, teeth: 0.08, tongue: 0.18 },
-    bite:   { openness: 0.28, width: 1.00, roundness: 0.08, squeeze: 0.28, teeth: 0.82, tongue: 0.00 },
-    tongue: { openness: 0.40, width: 0.94, roundness: 0.12, squeeze: 0.12, teeth: 0.22, tongue: 0.82 }
-};
-
-function clearSpeechWordTimer() {
-    if (speechWordTimer) {
-        clearTimeout(speechWordTimer);
-        speechWordTimer = null;
-    }
-}
-
-function setTargetViseme(name) {
-    targetVisemeState = { ...(VISEMES[name] || VISEMES.rest) };
-}
-
-function visemeForToken(token) {
-    const clean = token.toLowerCase().replace(/[^a-z]/g, '');
-    if (!clean) return 'rest';
-    if (/^(mm|hm|mmm)$/.test(clean) || /[bmp]$/.test(clean)) return 'closed';
-    if (/[fv]/.test(clean)) return 'bite';
-    if (/[lrntdskgj]/.test(clean) && /[lr]/.test(clean)) return 'tongue';
-    if (/[ouqyw]/.test(clean)) return 'round';
-    if (/[iea]/.test(clean)) return 'wide';
-    return 'open';
-}
-
-function scheduleFallbackVisemes(text, utterance) {
-    clearSpeechWordTimer();
-    const words = text.match(/\b[^\s]+\b/g) || [];
-    if (!words.length) return;
-
-    let wordIndex = 0;
-    const msPerWord = Math.max(110, 215 / Math.max(0.75, utterance.rate || 1));
-
-    const advanceWord = () => {
-        if (!isSpeakingAnim || wordIndex >= words.length) {
-            setTargetViseme('rest');
-            return;
-        }
-
-        setTargetViseme(visemeForToken(words[wordIndex]));
-        wordIndex += 1;
-        speechWordTimer = setTimeout(advanceWord, msPerWord);
-    };
-
-    advanceWord();
-}
-
-function handleSpeechBoundary(event, utterance) {
-    if (typeof event.charIndex !== 'number' || !currentSpeechText) return;
-    const trailing = currentSpeechText.slice(event.charIndex);
-    const token = trailing.match(/^\S+/)?.[0] || '';
-    if (token) {
-        setTargetViseme(visemeForToken(token));
-    } else if (event.name === 'sentence') {
-        setTargetViseme('rest');
-    }
-}
-
-const avatarImg = new Image();
-avatarImg.src = 'Images/avatar.png';
-let avatarImgReady = false;
-
-// Landmark calibration for Images/avatar.png (400x400 canvas)
-const PORTRAIT = {
-    leftEye: { x: 166, y: 172 },
-    rightEye: { x: 234, y: 172 },
-    mouth: { x: 200, y: 213 }
-};
 
 function roundedRectPath(x, y, width, height, radius) {
     const safeRadius = Math.min(radius, width / 2, height / 2);
@@ -308,88 +220,212 @@ function roundedRectPath(x, y, width, height, radius) {
     ctx.closePath();
 }
 
-function drawAvatarImage() {
-    if (!avatarImgReady) return;
-    ctx.drawImage(avatarImg, 0, 0, S, S);
-}
+function drawBackdrop() {
+    const backdrop = ctx.createRadialGradient(200, 145, 30, 200, 220, 245);
+    backdrop.addColorStop(0, '#2d5562');
+    backdrop.addColorStop(0.55, '#1f3947');
+    backdrop.addColorStop(1, '#11212b');
+    ctx.fillStyle = backdrop;
+    ctx.fillRect(0, 0, S, S);
 
-function drawBlinkOverlay() {
-    const blinkStrength = Math.min(1, blinkAmount * 1.1);
-    if (blinkStrength < 0.02) return;
-
-    const lids = [
-        { x: PORTRAIT.leftEye.x, y: PORTRAIT.leftEye.y, w: 36, h: 20 },
-        { x: PORTRAIT.rightEye.x, y: PORTRAIT.rightEye.y, w: 36, h: 20 }
-    ];
-
-    ctx.fillStyle = `rgba(216, 148, 93, ${0.25 + blinkStrength * 0.7})`;
-    lids.forEach((lid) => {
-        const coverHeight = 2 + blinkStrength * lid.h;
+    ctx.fillStyle = 'rgba(236, 197, 93, 0.16)';
+    for (let index = 0; index < 18; index++) {
+        const x = 22 + ((index * 43) % 360);
+        const y = 34 + ((index * 61) % 150);
         ctx.beginPath();
-        ctx.ellipse(lid.x, lid.y - 4 + coverHeight * 0.12, lid.w * 0.48, coverHeight, 0, Math.PI, 0, true);
-        ctx.closePath();
+        ctx.arc(x, y, index % 3 === 0 ? 2.2 : 1.2, 0, Math.PI * 2);
         ctx.fill();
-    });
-}
-
-function drawAnimatedMouth(mouthMetrics) {
-    const mouthX = PORTRAIT.mouth.x;
-    const mouthY = PORTRAIT.mouth.y + mouthMetrics.open * 0.08;
-    const mouthWidth = 23 + mouthMetrics.width * 8;
-    const mouthHeight = 0.6 + mouthMetrics.open * 0.42;
-    const roundness = mouthMetrics.roundness;
-    const squeezeInset = mouthMetrics.squeeze * 4;
-
-    if (mouthMetrics.open < 5.2) {
-        ctx.strokeStyle = 'rgba(94, 52, 40, 0.75)';
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.moveTo(mouthX - mouthWidth * 0.5, mouthY);
-        ctx.quadraticCurveTo(mouthX, mouthY + 1.8, mouthX + mouthWidth * 0.5, mouthY);
-        ctx.stroke();
-        return;
     }
 
-    ctx.fillStyle = 'rgba(214, 148, 93, 0.48)';
+    ctx.strokeStyle = 'rgba(230, 188, 82, 0.22)';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.ellipse(mouthX, mouthY - 0.8, mouthWidth * 0.62, 2.8, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.arc(98, 82, 23, 0.15, Math.PI * 1.75);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(304, 74, 18, 0.4, Math.PI * 1.95);
+    ctx.stroke();
 
-    ctx.fillStyle = '#6e2a22';
+    ctx.strokeStyle = 'rgba(126, 222, 211, 0.18)';
+    roundedRectPath(250, 118, 98, 80, 10);
+    ctx.stroke();
+    roundedRectPath(262, 208, 88, 62, 10);
+    ctx.stroke();
+}
+
+function drawBody() {
+    ctx.fillStyle = '#1f2024';
     ctx.beginPath();
-    ctx.moveTo(mouthX - mouthWidth / 2 + squeezeInset, mouthY);
-    ctx.quadraticCurveTo(mouthX, mouthY + 2 + roundness * 2.5, mouthX + mouthWidth / 2 - squeezeInset, mouthY);
-    ctx.quadraticCurveTo(mouthX, mouthY + mouthHeight * (1.18 + roundness * 0.28), mouthX - mouthWidth / 2 + squeezeInset, mouthY);
+    ctx.moveTo(132, 360);
+    ctx.quadraticCurveTo(150, 286, 192, 278);
+    ctx.quadraticCurveTo(200, 276, 208, 278);
+    ctx.quadraticCurveTo(250, 286, 268, 360);
     ctx.closePath();
     ctx.fill();
 
-    if (mouthMetrics.teeth > 0.1) {
-        const teethWidth = mouthWidth * 0.72;
-        const teethHeight = 1.6 + mouthMetrics.teeth * 3.1;
-        ctx.fillStyle = '#f8eee8';
-        roundedRectPath(mouthX - teethWidth / 2, mouthY + 1.0, teethWidth, teethHeight, 2.2);
-        ctx.fill();
-    }
-
-    if (mouthMetrics.tongue > 0.08) {
-        ctx.fillStyle = '#cc6171';
-        ctx.beginPath();
-        ctx.ellipse(mouthX, mouthY + mouthHeight * 0.78, mouthWidth * 0.18, 2.5 + mouthMetrics.tongue * 4.4, 0, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    ctx.strokeStyle = 'rgba(102, 49, 37, 0.82)';
-    ctx.lineWidth = 1.3;
+    ctx.fillStyle = '#2b2d32';
     ctx.beginPath();
-    ctx.moveTo(mouthX - mouthWidth / 2, mouthY - 0.8);
-    ctx.quadraticCurveTo(mouthX, mouthY + 1.4, mouthX + mouthWidth / 2, mouthY - 0.8);
+    ctx.ellipse(200, 336, 78, 56, 0, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawNeck() {
+    ctx.fillStyle = '#cf8e57';
+    ctx.beginPath();
+    ctx.moveTo(172, 258);
+    ctx.lineTo(228, 258);
+    ctx.quadraticCurveTo(222, 292, 200, 298);
+    ctx.quadraticCurveTo(178, 292, 172, 258);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawEars() {
+    ctx.fillStyle = '#d7965f';
+    ctx.beginPath();
+    ctx.ellipse(124, 180, 18, 26, -0.15, 0, Math.PI * 2);
+    ctx.ellipse(276, 180, 18, 26, 0.15, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawFaceShape() {
+    ctx.fillStyle = '#d99a63';
+    ctx.beginPath();
+    ctx.moveTo(146, 104);
+    ctx.quadraticCurveTo(108, 146, 122, 224);
+    ctx.quadraticCurveTo(134, 302, 200, 318);
+    ctx.quadraticCurveTo(266, 302, 278, 224);
+    ctx.quadraticCurveTo(292, 146, 254, 104);
+    ctx.quadraticCurveTo(200, 72, 146, 104);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 226, 187, 0.24)';
+    ctx.beginPath();
+    ctx.ellipse(178, 164, 32, 52, -0.35, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawHair() {
+    ctx.fillStyle = '#1a1514';
+    ctx.beginPath();
+    ctx.moveTo(130, 134);
+    ctx.quadraticCurveTo(132, 84, 182, 70);
+    ctx.quadraticCurveTo(230, 56, 268, 88);
+    ctx.quadraticCurveTo(288, 106, 286, 148);
+    ctx.quadraticCurveTo(266, 126, 242, 116);
+    ctx.quadraticCurveTo(202, 96, 162, 104);
+    ctx.quadraticCurveTo(146, 108, 130, 134);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(142, 132);
+    ctx.quadraticCurveTo(166, 90, 212, 92);
+    ctx.quadraticCurveTo(246, 94, 268, 120);
+    ctx.quadraticCurveTo(238, 118, 214, 112);
+    ctx.quadraticCurveTo(180, 104, 142, 132);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawBrows() {
+    const browY = 142 - browLift * 7;
+    ctx.strokeStyle = '#2a1914';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(150, browY + 4);
+    ctx.quadraticCurveTo(171, browY - 6, 192, browY + 1);
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(208, browY + 1);
+    ctx.quadraticCurveTo(229, browY - 6, 250, browY + 4);
+    ctx.stroke();
+}
+
+function drawEye(centerX, centerY, side) {
+    const lidHeight = Math.max(2.5, 22 - blinkAmount * 20);
+    const irisX = centerX + side * pupilShift * 4;
+
+    ctx.fillStyle = '#fff8ef';
+    ctx.beginPath();
+    ctx.ellipse(centerX, centerY, 21, lidHeight, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#2c1c16';
+    ctx.beginPath();
+    ctx.ellipse(irisX, centerY + 1, 8.6, Math.max(3, lidHeight * 0.65), 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(irisX + 3, centerY - 4, 2.4, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawNose() {
+    ctx.strokeStyle = 'rgba(124, 73, 43, 0.55)';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(203, 168);
+    ctx.quadraticCurveTo(197, 194, 202, 221);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(195, 221);
+    ctx.quadraticCurveTo(201, 228, 212, 222);
+    ctx.stroke();
+}
+
+function drawMouth(mouthOpen) {
+    const mouthWidth = 52 + mouthOpen * 0.5;
+    const mouthHeight = 8 + mouthOpen;
+    const mouthY = 244 + mouthOpen * 0.24;
+    const smileLift = 6 + (1 - mouthAmp) * 4;
+
+    ctx.fillStyle = '#6e2a22';
+    ctx.beginPath();
+    ctx.moveTo(200 - mouthWidth / 2, mouthY);
+    ctx.quadraticCurveTo(200, mouthY + mouthHeight, 200 + mouthWidth / 2, mouthY);
+    ctx.quadraticCurveTo(200, mouthY + mouthHeight * 1.9, 200 - mouthWidth / 2, mouthY);
+    ctx.closePath();
+    ctx.fill();
+
+    if (mouthOpen > 6) {
+        ctx.fillStyle = '#f8eee8';
+        roundedRectPath(200 - mouthWidth / 2 + 6, mouthY + 3, mouthWidth - 12, 8, 4);
+        ctx.fill();
+
+        ctx.fillStyle = '#c95d6f';
+        ctx.beginPath();
+        ctx.ellipse(200, mouthY + mouthHeight + 4, mouthWidth * 0.26, mouthHeight * 0.26, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = '#6b3225';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(200 - mouthWidth / 2 - 4, mouthY - 2);
+    ctx.quadraticCurveTo(200, mouthY + smileLift, 200 + mouthWidth / 2 + 4, mouthY - 2);
+    ctx.stroke();
+}
+
+function drawCheeks() {
+    ctx.fillStyle = 'rgba(193, 98, 80, 0.14)';
+    ctx.beginPath();
+    ctx.ellipse(152, 222, 22, 13, -0.2, 0, Math.PI * 2);
+    ctx.ellipse(248, 222, 22, 13, 0.2, 0, Math.PI * 2);
+    ctx.fill();
 }
 
 function startAvatarAnim() {
     isSpeakingAnim = true;
     targetMouthAmp = 1;
-    setTargetViseme('open');
     scheduleHeadTilt();
 }
 
@@ -397,9 +433,6 @@ function stopAvatarAnim() {
     isSpeakingAnim = false;
     targetMouthAmp = 0;
     headTiltTarget = 0;
-    clearSpeechWordTimer();
-    currentSpeechText = '';
-    setTargetViseme('rest');
 }
 
 function scheduleHeadTilt() {
@@ -409,19 +442,8 @@ function scheduleHeadTilt() {
 }
 
 function drawAvatar() {
-    if (!avatarImgReady) {
-        requestAnimationFrame(drawAvatar);
-        return;
-    }
-
     mouthAmp += (targetMouthAmp - mouthAmp) * 0.15;
     browLift += ((isSpeakingAnim ? 1 : 0) - browLift) * 0.08;
-    visemeState.openness += (targetVisemeState.openness - visemeState.openness) * 0.28;
-    visemeState.width += (targetVisemeState.width - visemeState.width) * 0.28;
-    visemeState.roundness += (targetVisemeState.roundness - visemeState.roundness) * 0.28;
-    visemeState.squeeze += (targetVisemeState.squeeze - visemeState.squeeze) * 0.28;
-    visemeState.teeth += (targetVisemeState.teeth - visemeState.teeth) * 0.24;
-    visemeState.tongue += (targetVisemeState.tongue - visemeState.tongue) * 0.22;
 
     if (isSpeakingAnim) {
         mouthSpeed = 0.18 + Math.sin(mouthPhase * 0.3) * 0.1;
@@ -431,14 +453,7 @@ function drawAvatar() {
     const rawMouth = Math.abs(Math.sin(mouthPhase)) * 0.6
                    + Math.abs(Math.sin(mouthPhase * 1.7)) * 0.25
                    + Math.abs(Math.sin(mouthPhase * 0.5)) * 0.15;
-    const mouthMetrics = {
-        open: 4 + visemeState.openness * (8 + mouthAmp * 20) + mouthAmp * rawMouth * 5,
-        width: visemeState.width + mouthAmp * 0.05,
-        roundness: visemeState.roundness,
-        squeeze: visemeState.squeeze,
-        teeth: visemeState.teeth,
-        tongue: visemeState.tongue
-    };
+    const mouthOpen = mouthAmp * rawMouth * 30;
     pupilShift = Math.sin(mouthPhase * 0.25) * 0.35;
 
     blinkTimer++;
@@ -469,22 +484,24 @@ function drawAvatar() {
     ctx.arc(S / 2, S / 2, S / 2 - 2, 0, Math.PI * 2);
     ctx.clip();
 
-    drawAvatarImage();
-    drawBlinkOverlay();
-    drawAnimatedMouth(mouthMetrics);
+    drawBackdrop();
+    drawBody();
+    drawNeck();
+    drawEars();
+    drawFaceShape();
+    drawHair();
+    drawBrows();
+    drawEye(167, 172 + blinkPx * 0.06, -1);
+    drawEye(233, 172 + blinkPx * 0.06, 1);
+    drawNose();
+    drawCheeks();
+    drawMouth(mouthOpen);
 
     ctx.restore();
     requestAnimationFrame(drawAvatar);
 }
 
-avatarImg.onload = () => {
-    avatarImgReady = true;
-    drawAvatar();
-};
-if (avatarImg.complete && avatarImg.naturalWidth) {
-    avatarImgReady = true;
-    drawAvatar();
-}
+drawAvatar();
 
 // ============================================================
 // VOICE: Speech Recognition (input)
@@ -555,9 +572,6 @@ function speakText(text) {
     if (!toggle.checked || !window.speechSynthesis) return;
 
     window.speechSynthesis.cancel();
-    clearSpeechWordTimer();
-    currentSpeechText = text;
-    speechStartedAt = performance.now();
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
@@ -569,15 +583,10 @@ function speakText(text) {
         || voices.find(v => v.lang.startsWith('en') && v.localService);
     if (preferred) utterance.voice = preferred;
 
-    utterance.onboundary = (event) => {
-        handleSpeechBoundary(event, utterance);
-    };
-
     utterance.onstart = () => {
         document.getElementById('avatarContainer').classList.add('speaking');
         document.getElementById('stopBtn').classList.add('visible');
         startAvatarAnim();
-        scheduleFallbackVisemes(text, utterance);
     };
     utterance.onend = () => {
         document.getElementById('avatarContainer').classList.remove('speaking');
