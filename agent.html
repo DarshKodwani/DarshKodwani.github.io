@@ -228,6 +228,13 @@ function drawBackdrop() {
     ctx.fillStyle = backdrop;
     ctx.fillRect(0, 0, S, S);
 
+    // Subtle chalkboard texture
+    ctx.fillStyle = 'rgba(12, 28, 35, 0.18)';
+    for (let i = 0; i < 30; i++) {
+        const y = 20 + i * 12;
+        ctx.fillRect(0, y, S, 1);
+    }
+
     ctx.fillStyle = 'rgba(236, 197, 93, 0.16)';
     for (let index = 0; index < 18; index++) {
         const x = 22 + ((index * 43) % 360);
@@ -251,6 +258,64 @@ function drawBackdrop() {
     ctx.stroke();
     roundedRectPath(262, 208, 88, 62, 10);
     ctx.stroke();
+
+    // Astrophysics equations and symbols
+    ctx.font = '12px "SF Mono", Menlo, monospace';
+    ctx.fillStyle = 'rgba(236, 197, 93, 0.35)';
+    ctx.fillText('G_mn + L g_mn = 8piG T_mn', 18, 92);
+    ctx.fillText('rho_c = 3H^2 / (8piG)', 18, 114);
+    ctx.fillText('ds^2 = -dt^2 + a(t)^2 dx^2', 18, 136);
+    ctx.fillText('P(k) = A_s k^(n_s-1)', 18, 158);
+    ctx.fillText('R_mu_nu - 1/2 R g_mu_nu', 18, 180);
+
+    ctx.fillStyle = 'rgba(126, 222, 211, 0.36)';
+    ctx.fillText('Omega_m + Omega_L = 1', 266, 137);
+    ctx.fillText('del^2 Phi = 4piG rho', 266, 220);
+    ctx.fillText('H(z)^2 = H0^2 E(z)^2', 266, 242);
+
+    // Tiny constellation map
+    const stars = [
+        [285, 150], [298, 142], [312, 146], [322, 158], [315, 172], [300, 175], [287, 165]
+    ];
+    ctx.strokeStyle = 'rgba(126, 222, 211, 0.35)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(stars[0][0], stars[0][1]);
+    for (let i = 1; i < stars.length; i++) {
+        ctx.lineTo(stars[i][0], stars[i][1]);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(236, 197, 93, 0.45)';
+    stars.forEach(([x, y]) => {
+        ctx.beginPath();
+        ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Bottom-left lab flasks to echo the portrait style
+    ctx.strokeStyle = 'rgba(236, 197, 93, 0.25)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(38, 298);
+    ctx.lineTo(38, 266);
+    ctx.lineTo(50, 266);
+    ctx.lineTo(50, 298);
+    ctx.lineTo(62, 324);
+    ctx.lineTo(26, 324);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(246, 142, 70, 0.28)';
+    ctx.fillRect(30, 307, 28, 12);
+
+    ctx.beginPath();
+    ctx.moveTo(86, 322);
+    ctx.lineTo(97, 288);
+    ctx.lineTo(109, 322);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(126, 222, 211, 0.22)';
+    ctx.fillRect(92, 309, 12, 10);
 }
 
 function drawBody() {
