@@ -41,6 +41,12 @@
                     </div>
                 </div>
                 <div class="avatar-name">Darsh's AI</div>
+                <div class="mode-toggle" id="modeToggle" aria-label="Avatar mode">
+                    <button class="mode-btn active" data-mode="auto" onclick="setAvatarModeOverride('auto')">Auto</button>
+                    <button class="mode-btn" data-mode="work" onclick="setAvatarModeOverride('work')">Work</button>
+                    <button class="mode-btn" data-mode="chill" onclick="setAvatarModeOverride('chill')">Chill</button>
+                </div>
+                <div class="mode-hint" id="modeHint">Auto • UK time</div>
                 <button class="stop-btn" id="stopBtn" onclick="stopSpeaking()" aria-label="Stop speaking">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
                     <span>Stop</span>
@@ -209,6 +215,8 @@ let headBob = 0;
 let browLift = 0;
 let pupilShift = 0;
 let isWorkHoursUK = true;
+let ukWorkHoursNow = true;
+let avatarModeOverride = 'auto'; // auto | work | chill
 
 function updateAvatarModeByUKTime() {
     const parts = new Intl.DateTimeFormat('en-GB', {
@@ -222,7 +230,42 @@ function updateAvatarModeByUKTime() {
     const weekday = parts.find(p => p.type === 'weekday')?.value || '';
     const isWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(weekday);
 
-    isWorkHoursUK = isWeekday && hour >= 9 && hour < 17;
+    ukWorkHoursNow = isWeekday && hour >= 9 && hour < 17;
+    applyAvatarMode();
+}
+
+function applyAvatarMode() {
+    if (avatarModeOverride === 'work') {
+        isWorkHoursUK = true;
+    } else if (avatarModeOverride === 'chill') {
+        isWorkHoursUK = false;
+    } else {
+        isWorkHoursUK = ukWorkHoursNow;
+    }
+    refreshModeToggleUI();
+}
+
+function setAvatarModeOverride(mode) {
+    avatarModeOverride = mode;
+    applyAvatarMode();
+}
+
+function refreshModeToggleUI() {
+    const buttons = document.querySelectorAll('.mode-btn');
+    buttons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === avatarModeOverride);
+    });
+
+    const hint = document.getElementById('modeHint');
+    if (!hint) return;
+
+    if (avatarModeOverride === 'auto') {
+        hint.textContent = isWorkHoursUK ? 'Auto • UK work hours' : 'Auto • UK chill hours';
+    } else if (avatarModeOverride === 'work') {
+        hint.textContent = 'Manual • Work mode';
+    } else {
+        hint.textContent = 'Manual • Chill mode';
+    }
 }
 
 updateAvatarModeByUKTime();
