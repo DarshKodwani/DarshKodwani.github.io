@@ -39,6 +39,9 @@
                         <span class="ring ring-2"></span>
                         <span class="ring ring-3"></span>
                     </div>
+                    <button class="stop-btn" id="stopBtn" onclick="stopSpeaking()" aria-label="Stop speaking">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                    </button>
                 </div>
                 <div class="avatar-name">Darsh's AI</div>
             </div>
@@ -264,18 +267,28 @@ function speakText(text) {
 
     utterance.onstart = () => {
         document.getElementById('avatarContainer').classList.add('speaking');
+        document.getElementById('stopBtn').classList.add('visible');
     };
     utterance.onend = () => {
         document.getElementById('avatarContainer').classList.remove('speaking');
+        document.getElementById('stopBtn').classList.remove('visible');
         currentUtterance = null;
     };
     utterance.onerror = () => {
         document.getElementById('avatarContainer').classList.remove('speaking');
+        document.getElementById('stopBtn').classList.remove('visible');
         currentUtterance = null;
     };
 
     currentUtterance = utterance;
     window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    document.getElementById('avatarContainer').classList.remove('speaking');
+    document.getElementById('stopBtn').classList.remove('visible');
+    currentUtterance = null;
 }
 
 if (window.speechSynthesis) {
@@ -329,6 +342,7 @@ async function sendMessage() {
     // Stop any ongoing speech
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     document.getElementById('avatarContainer').classList.remove('speaking');
+    document.getElementById('stopBtn').classList.remove('visible');
 
     // Hide suggestions after first question
     const suggestions = document.getElementById('suggestions');
