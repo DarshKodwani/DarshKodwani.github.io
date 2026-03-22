@@ -5,78 +5,113 @@
 .agent-page {
     max-width: 700px;
     margin: 0 auto;
-    padding: 1.5rem 1rem 1rem;
+    padding: 0.5rem 1rem 0.5rem;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: calc(100vh - 80px);
+    justify-content: center;
 }
 
 /* ---------- Avatar Stage ---------- */
 
 .avatar-stage {
     text-align: center;
-    margin-bottom: 0.5rem;
-    padding-top: 1rem;
+    margin-bottom: 0;
+    padding-top: 0;
+    flex-shrink: 0;
 }
 
 .avatar-container {
     position: relative;
     display: inline-block;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Ambient glow behind avatar */
+.avatar-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    transition: all 0.5s ease;
+}
+
+.avatar-container.speaking::before {
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, rgba(37, 99, 235, 0.05) 50%, transparent 70%);
+}
+
+.avatar-container.user-speaking::before {
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.04) 50%, transparent 70%);
 }
 
 .agent-avatar {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(37, 99, 235, 0.08);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     animation: avatar-idle 4s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
 }
 
 /* Idle breathing animation */
 @keyframes avatar-idle {
     0%, 100% { transform: scale(1) translateY(0); }
-    50% { transform: scale(1.015) translateY(-2px); }
+    50% { transform: scale(1.02) translateY(-3px); }
 }
 
-/* Speaking animation — lively movement */
+/* Speaking animation — animated, expressive */
 .avatar-container.speaking .agent-avatar {
-    animation: avatar-speaking 0.6s ease-in-out infinite alternate;
+    animation: avatar-speaking 0.5s ease-in-out infinite alternate;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5), 0 0 50px rgba(37, 99, 235, 0.2);
 }
 
 @keyframes avatar-speaking {
     0% { transform: scale(1.0) rotate(0deg) translateY(0); }
-    25% { transform: scale(1.03) rotate(0.8deg) translateY(-3px); }
-    50% { transform: scale(1.01) rotate(-0.5deg) translateY(-1px); }
-    75% { transform: scale(1.04) rotate(0.3deg) translateY(-4px); }
-    100% { transform: scale(1.02) rotate(-0.8deg) translateY(-2px); }
+    20% { transform: scale(1.04) rotate(1deg) translateY(-4px); }
+    40% { transform: scale(1.01) rotate(-0.7deg) translateY(-1px); }
+    60% { transform: scale(1.05) rotate(0.5deg) translateY(-5px); }
+    80% { transform: scale(1.02) rotate(-1deg) translateY(-2px); }
+    100% { transform: scale(1.03) rotate(0.8deg) translateY(-3px); }
 }
 
 /* User speaking — pulse while mic is active */
 .avatar-container.user-speaking .agent-avatar {
-    animation: avatar-listening 1.2s ease-in-out infinite;
+    animation: avatar-listening 1s ease-in-out infinite;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5), 0 0 50px rgba(239, 68, 68, 0.15);
 }
 
 @keyframes avatar-listening {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.04); }
+    50% { transform: scale(1.05); }
 }
 
 .status-dot {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 18px;
-    height: 18px;
+    bottom: 14px;
+    right: 14px;
+    width: 20px;
+    height: 20px;
     background: #22c55e;
     border-radius: 50%;
     border: 3px solid #1a1a1a;
     animation: pulse-dot 2s ease-in-out infinite;
+    z-index: 2;
 }
 
 @keyframes pulse-dot {
@@ -98,11 +133,12 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: 0;
 }
 
 .avatar-container.speaking .speaking-rings {
@@ -119,20 +155,20 @@
 }
 
 .ring-1 {
-    width: 170px;
-    height: 170px;
+    width: 225px;
+    height: 225px;
     animation: ring-pulse 1.5s ease-in-out infinite;
 }
 
 .ring-2 {
-    width: 195px;
-    height: 195px;
+    width: 260px;
+    height: 260px;
     animation: ring-pulse 1.5s ease-in-out 0.3s infinite;
 }
 
 .ring-3 {
-    width: 220px;
-    height: 220px;
+    width: 295px;
+    height: 295px;
     animation: ring-pulse 1.5s ease-in-out 0.6s infinite;
 }
 
@@ -149,12 +185,10 @@
 
 .avatar-container.speaking .agent-avatar {
     border-color: rgba(37, 99, 235, 0.6);
-    box-shadow: 0 0 35px rgba(37, 99, 235, 0.25);
 }
 
 .avatar-container.user-speaking .agent-avatar {
     border-color: rgba(239, 68, 68, 0.6);
-    box-shadow: 0 0 35px rgba(239, 68, 68, 0.25);
 }
 
 /* ---------- Stop Button ---------- */
@@ -195,20 +229,20 @@
 
 .response-area {
     text-align: center;
-    padding: 1rem 1.5rem;
-    min-height: 80px;
+    padding: 0.5rem 1.5rem;
+    min-height: 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     flex: 1;
-    max-height: 50vh;
+    max-height: 40vh;
     overflow-y: auto;
     width: 100%;
 }
 
 .response-text {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 1.05rem;
     line-height: 1.8;
     max-width: 600px;
@@ -481,22 +515,27 @@
 
 @media (max-width: 640px) {
     .agent-page {
-        padding: 1rem 0.75rem 0.5rem;
+        padding: 0.5rem 0.75rem 0.5rem;
     }
 
     .agent-avatar {
-        width: 120px;
-        height: 120px;
+        width: 150px;
+        height: 150px;
+    }
+
+    .avatar-container::before {
+        width: 180px;
+        height: 180px;
     }
 
     .speaking-rings {
-        width: 120px;
-        height: 120px;
+        width: 150px;
+        height: 150px;
     }
 
-    .ring-1 { width: 140px; height: 140px; }
-    .ring-2 { width: 160px; height: 160px; }
-    .ring-3 { width: 180px; height: 180px; }
+    .ring-1 { width: 175px; height: 175px; }
+    .ring-2 { width: 200px; height: 200px; }
+    .ring-3 { width: 225px; height: 225px; }
 
     .response-text {
         font-size: 0.95rem;
