@@ -244,6 +244,7 @@
 
 .publication-card {
     overflow: hidden;
+    min-height: 100%;
 }
 
 .publication-card img,
@@ -252,6 +253,22 @@
 .logo-image {
     width: 100%;
     border-radius: 14px;
+}
+
+.publication-card .card-title {
+    margin-bottom: 0.45rem;
+}
+
+.publication-card .card-meta {
+    margin-bottom: 0.65rem;
+}
+
+.publication-card p {
+    margin-bottom: 0.9rem;
+}
+
+.publication-card .inline-links {
+    margin-top: auto;
 }
 
 .publication-card img,

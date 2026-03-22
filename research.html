@@ -1,14 +1,16 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <!-- PAGE TITLE -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Darsh | Research</title>
     <link rel="icon" type="image/" href="Images/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/slick-theme.css">
-    <link rel="stylesheet" href="css/research.css">
     <link rel="stylesheet" href="css/site-shell.css">
+    <link rel="stylesheet" href="css/content-pages.css">
     <script src="assets/js/site-shell.js" defer></script>
 </head>
 
@@ -36,124 +38,144 @@
         </nav>
     </header>
 
-    <div class="container-fluid">
-        <div class="research-page new-page">
-            <div class="Research">
-                <h1>Research</h1>
-                <p class="lead">
-                    I have worked on a range of research topics including theoretical topics in cosmology, black holes and more general topics that intersect particle physics and astrophysics. More recently I have also been working on topics in statistics and machine learning.
-                    Most of my machine learning experience has come from my work outside academia as a data scientist.
-                </p>
+    <main class="page-wrap page-stack">
+        <section class="page-hero">
+            <div class="page-copy">
+                <div class="page-kicker">Research</div>
+                <h1 class="page-title">From cosmology and gravity to machine learning and statistical inference.</h1>
+                <p class="page-lead">Darsh’s research spans theoretical physics, cosmological data analysis, and ML-driven scientific methods. The unifying thread is first-principles reasoning paired with practical computational techniques.</p>
             </div>
-
-            <hr>
-
-            <div class="Thesis">
-                <h3> DPhil thesis </h3>
-                My broad interests are also reflected in the title of my thesis.
-                <p><button type="button" class="btn btn-secondary btn-lg btn-block thesisButton"><a href="https://arxiv.org/abs/2006.12126" class="thesisUrl">Origin and evolution of the universe</a></button></p>
+            <div class="hero-side">
+                <div class="hero-badge">
+                    <strong>Research arc</strong>
+                    <p>Early work focused on gravity, black holes, and cosmological perturbations; recent work includes deep learning methods for CMB reconstruction and statistical inference.</p>
+                </div>
+                <div class="hero-chip">
+                    <strong>Output</strong>
+                    <p>9 peer-reviewed publications across JCAP, Physical Review D, Open Journal of Astrophysics, and related journals.</p>
+                </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <hr>
-    <!-- publication cards -->
-    <h3> Publications </h3>
-    <div class="row publication-cards">
+        <section class="metric-strip">
+            <div class="metric-item"><span class="metric-value">9</span><span class="metric-label">Peer-reviewed publications</span></div>
+            <div class="metric-item"><span class="metric-value">DPhil</span><span class="metric-label">Oxford thesis on the origin and evolution of the universe</span></div>
+            <div class="metric-item"><span class="metric-value">ML + Physics</span><span class="metric-label">Applied deep learning to core cosmology data problems</span></div>
+        </section>
 
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/NN_inpainting.png" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/2011.01433" class="paperTitle">Inpainting CMB maps using Partial Convolutional Neural Networks </a> </h5>
-                <p class="card-text">We present a novel application of partial convolutional neural networks (PCNN) that can inpaint masked images of the cosmic microwave background up to an accuracy of 99.9% level.</p>
-                <a href="https://arxiv.org/abs/2011.01433" class="btn btn-success">arXiv</a>
-                <a href="https://iopscience.iop.org/article/10.1088/1475-7516/2021/03/055" class="btn btn-primary">JCAP</a>
+        <section class="page-panel">
+            <div class="section-subtitle">Thesis</div>
+            <h2 class="section-title">Doctoral work</h2>
+            <article class="content-card">
+                <h3 class="card-title">Origin and evolution of the universe</h3>
+                <div class="card-meta">DPhil Thesis, University of Oxford</div>
+                <p>The thesis reflects broad interests across cosmological theory, perturbations, and early-universe dynamics, combining analytical modeling with data-facing implications.</p>
+                <div class="inline-links">
+                    <a class="link-button" href="https://arxiv.org/abs/2006.12126">Read Thesis on arXiv</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="page-panel">
+            <div class="section-subtitle">Publications</div>
+            <h2 class="section-title">Selected papers and results</h2>
+            <div class="publications-grid">
+                <article class="publication-card content-card">
+                    <img src="Images/research/NN_inpainting.png" alt="CMB inpainting with neural networks">
+                    <h3 class="card-title">Inpainting CMB maps using Partial Convolutional Neural Networks</h3>
+                    <div class="card-meta">JCAP (2021)</div>
+                    <p>Introduces PCNN-based inpainting for masked CMB maps, reaching very high reconstruction fidelity and showing the practical value of deep learning in precision cosmology.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/2011.01433">arXiv</a>
+                        <a class="link-button secondary" href="https://iopscience.iop.org/article/10.1088/1475-7516/2021/03/055">JCAP</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/CMB_pol.jpg" alt="CMB polarization background">
+                    <h3 class="card-title">Initial conditions of the universe: Decaying tensor modes</h3>
+                    <div class="card-meta">Cosmological perturbations</div>
+                    <p>Explores observational consequences of decaying tensor modes without locking to a specific early-universe model, and studies resulting CMB signatures.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/1904.12310">arXiv</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/windy.jpg" alt="Windy sky background">
+                    <h3 class="card-title">Screened fifth forces in parity breaking correlation functions</h3>
+                    <div class="card-meta">Physical Review D</div>
+                    <p>Computes modified-gravity signatures in parity-breaking galaxy correlations, linking screening physics to potentially observable large-scale structure effects.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/1904.12310">arXiv</a>
+                        <a class="link-button secondary" href="https://journals.aps.org/prd/abstract/10.1103/PhysRevD.100.064030">PRD</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/sine_mode.jpg" alt="Sine mode visualization">
+                    <h3 class="card-title">Initial conditions of the universe: A sign of the sine mode</h3>
+                    <div class="card-meta">Physical Review D</div>
+                    <p>Analyzes decaying scalar perturbation modes and quantifies their potential CMB impact through both analytical development and numerical treatment.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/1903.05042">arXiv</a>
+                        <a class="link-button secondary" href="https://journals.aps.org/prd/abstract/10.1103/PhysRevD.99.123518">PRD</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/Covariance_lensing.jpg" alt="Covariance and lensing">
+                    <h3 class="card-title">Parameter dependent covariance and cosmological inference</h3>
+                    <div class="card-meta">Open Journal of Astrophysics</div>
+                    <p>Tests when covariance-matrix parameter dependence materially impacts parameter estimation, showing practical regimes where simplifying assumptions remain reliable.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/1811.11584">arXiv</a>
+                        <a class="link-button secondary" href="https://astro.theoj.org/article/7716-the-effect-on-cosmological-parameter-estimation-of-a-parameter-dependent-covariance-matrix">OJA</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/bh_coherence.jpg" alt="Black hole coherence">
+                    <h3 class="card-title">A self-consistency check for unitary propagation of Hawking quanta</h3>
+                    <div class="card-meta">IJMPA</div>
+                    <p>Develops a consistency framework around assumptions in the black-hole information problem, focusing on unitarity constraints in Hawking-radiation propagation.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/1701.04811">arXiv</a>
+                        <a class="link-button secondary" href="https://www.worldscientific.com/doi/abs/10.1142/S0217751X17501986">IJMPA</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/Lens.jpg" alt="Supernova neutrino shells">
+                    <h3 class="card-title">Memory effect from supernova neutrino shells</h3>
+                    <div class="card-meta">Relativistic transients</div>
+                    <p>Studies how relativistic neutrino shells from supernovae perturb geometry and generate measurable signatures in pulsar scintillation and interferometric setups.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/1605.05399">arXiv</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/sn_pulsar.png" alt="Pulsar acceleration shifts">
+                    <h3 class="card-title">Pulsar acceleration shifts from nearby supernova explosions</h3>
+                    <div class="card-meta">Physical Review D</div>
+                    <p>Shows characteristic timing-derivative signatures in pulsar signals induced by nearby supernova events, outlining potential detectability with stable millisecond pulsars.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://arxiv.org/abs/1601.03917">arXiv</a>
+                        <a class="link-button secondary" href="https://journals.aps.org/prd/abstract/10.1103/PhysRevD.93.103006">PRD</a>
+                    </div>
+                </article>
+
+                <article class="publication-card content-card">
+                    <img src="Images/research/thermocouples.png" alt="Thermocouple calibration">
+                    <h3 class="card-title">Fixed-point alloy cells for in situ thermocouple calibration</h3>
+                    <div class="card-meta">International Journal of Thermophysics</div>
+                    <p>Presents stable zinc-bismuth and aluminum-indium monotectic alloy fixed-point cells with robust phase-transition plateaus for calibration workflows.</p>
+                    <div class="inline-links">
+                        <a class="link-button" href="https://link.springer.com/article/10.1007/s10765-015-1940-1">Read Paper</a>
+                    </div>
+                </article>
             </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/CMB_pol.jpg" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/1904.12310" class="paperTitle">Initial conditions of the universe: Decaying tensor modes</a></h5>
-                <p class="card-text">In this study we remain agnostic to the early universe models describing pre-radiation domination physics and allow a decaying tensor mode to be present and see what effect it has on the CMB anisotropies</p>
-                <a href="https://arxiv.org/abs/1904.12310" class="btn btn-success">arXiv</a>
-            </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/windy.jpg" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/1904.12310" class="paperTitle">Screened fifth forces in parity breaking correlation functions</a></h5>
-                <p class="card-text"> In this paper we calculate the effect of screened modified gravity theirues in the parity breaking cross correlation function of galaxies.</p>
-                <a href="https://arxiv.org/abs/1904.12310" class="btn btn-success">arXiv</a>
-                <a href="https://journals.aps.org/prd/abstract/10.1103/PhysRevD.100.064030" class="btn btn-primary">Physical review D</a>
-            </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/sine_mode.jpg" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/1903.05042" class="paperTitle">Initial conditions of the universe: A sign of the sine mode</a></h5>
-                <p class="card-text">The decaying mode of scalar perturbations can lead to large observable effects in the CMB. In this study this mode is qunatified theoretically and studied numerically.</p>
-                <a href="https://arxiv.org/abs/1903.05042" class="btn btn-success">arXiv</a>
-                <a href="https://journals.aps.org/prd/abstract/10.1103/PhysRevD.99.123518" class="btn btn-primary">Physical review D</a>
-            </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/Covariance_lensing.jpg" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/1811.11584" class="paperTitle">The effect on cosmological parameter estimation of a parameter dependent covariance matrix</a></h5>
-                <p class="card-text">In cosmological large scale structure data analysis, a common assumption is that parameters can be estimated using a parameter independent covariance matrix in likelihood analysis. We test this assumption and find that the parameter dependence
-                    of the covariance matrix can be safely ignored in all practical situations.</p>
-                <a href="https://arxiv.org/abs/1811.11584" class="btn btn-success">arXiv</a>
-                <a href="https://astro.theoj.org/article/7716-the-effect-on-cosmological-parameter-estimation-of-a-parameter-dependent-covariance-matrix" class="btn btn-primary">OJA</a>
-            </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/bh_coherence.jpg" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/1701.04811" class="paperTitle">A self-consistency check for unitary propagation of Hawking quanta</a></h5>
-                <p class="card-text">The black hole information problem relies on several assumptions. One of them is the unitary propagation of hawking radiation. In this paper we proposed a self-consitency check to verify whether unitarity has be violated during the process
-                    of hawking radiation.</p>
-                <a href="https://arxiv.org/abs/1701.04811" class="btn btn-success">arXiv</a>
-                <a href="https://www.worldscientific.com/doi/abs/10.1142/S0217751X17501986" class="btn btn-primary">IJMPA</a>
-            </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/Lens.jpg" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/1605.05399" class="paperTitle">Memory effect from supernova neutrino shells</a></h5>
-                <p class="card-text">When a supernova explodes, most of its energy is released in a shell of relativistic neutirnos which changes the surrounding geometry. We calculate the potentially observable responses to such a change in both pulsar scintillation and
-                    conventional interferometers</p>
-                <a href="https://arxiv.org/abs/1605.05399" class="btn btn-success">arXiv</a>
-            </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/sn_pulsar.png" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://arxiv.org/abs/1601.03917" class="paperTitle">Pulsar Acceleration Shifts from nearby Supernova Explosion</a></h5>
-                <p class="card-text">We show that when a supernova explodes, a nearby pulsar signal goes through a very specific change. The observed period first changes smoothly, then is followed by a sudden change in the time derivative. A stable millisecond pulsar can
-                    allow us to measure such an effect.</p>
-                <a href="https://arxiv.org/abs/1601.03917" class="btn btn-success">arXiv</a>
-                <a href="https://journals.aps.org/prd/abstract/10.1103/PhysRevD.93.103006" class="btn btn-primary">Physical review D</a>
-            </div>
-        </div>
-
-        <div class="card col-md-4" style="width: 25%;">
-            <img class="card-img-top" src="Images/research/thermocouples.png" width="20" height="200" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title"><a href="https://link.springer.com/article/10.1007/s10765-015-1940-1" class="paperTitle">Zinc–Bismuth and Aluminum–Indium Monotectic Alloy-Based Fixed-Point Cells with Double Phase Transition for In Situ Calibration of Thermocouples</a></h5>
-                <p class="card-text">A zinc–bismuth fixed-point cell is constructed and has been shown to be stable with two well-defined melting plateaus at nominally 255 ∘C and 415 ∘C.</p>
-                <a href="https://link.springer.com/article/10.1007/s10765-015-1940-1" class="btn btn-primary">IJT</a>
-            </div>
-        </div>
-
-    </div>
-    <!-- publication cards -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        </section>
+    </main>
 </body>
