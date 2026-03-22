@@ -226,10 +226,10 @@ body.slick-theme .teaching_content > div[class]:not(.intro_comment) {
     background: linear-gradient(155deg, rgba(9, 22, 45, 0.76), rgba(7, 14, 28, 0.9));
     box-shadow: 0 12px 26px rgba(0, 0, 0, 0.32);
     margin: 1.1rem auto;
-    padding: 1rem;
+    padding: 1.15rem;
     display: grid;
     grid-template-columns: 260px 1fr;
-    gap: 1rem 1.2rem;
+    gap: 0.95rem 1.3rem;
     align-items: start;
     height: auto !important;
     min-height: 0 !important;
@@ -238,7 +238,10 @@ body.slick-theme .teaching_content > div[class]:not(.intro_comment) {
 
 body.slick-theme .teaching_content > div[class]:not(.intro_comment) h3 {
     grid-column: 1 / -1;
-    margin: 0 0 0.4rem;
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
 }
 
 body.slick-theme .teaching_content img {
@@ -256,6 +259,27 @@ body.slick-theme .teaching_content > div[class]:not(.intro_comment) > div {
     height: auto !important;
 }
 
+body.slick-theme .teaching_content > div[class]:not(.intro_comment) > div[class$='image'] {
+    display: flex;
+    align-items: stretch;
+}
+
+body.slick-theme .teaching_content > div[class]:not(.intro_comment) > div[class$='text'] {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: 180px;
+}
+
+body.slick-theme .teaching_content > div[class]:not(.intro_comment) > div[class$='text'] p {
+    margin: 0;
+}
+
+body.slick-theme .teaching_content > div[class]:not(.intro_comment) > div[class$='text'] p:last-child {
+    margin-top: auto;
+}
+
 body.slick-theme .teaching_content {
     display: flex;
     flex-direction: column;
@@ -263,7 +287,21 @@ body.slick-theme .teaching_content {
 }
 
 body.slick-theme .teaching_content .notesButton {
-    margin: 0.6rem 0 0 !important;
+    margin: 0 !important;
+    width: auto !important;
+    min-width: 210px;
+    padding: 0.62rem 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+body.slick-theme .teaching_content .notesButton .notesUrl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
 body.slick-theme .skills-image {
