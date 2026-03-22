@@ -17,11 +17,11 @@ body.home-page {
 }
 
 .glass-panel {
-    border: 1px solid rgba(158, 197, 255, 0.24);
+    border: 1px solid rgba(158, 197, 255, 0.22);
     border-radius: 22px;
-    background: linear-gradient(145deg, rgba(8, 20, 43, 0.5), rgba(7, 15, 31, 0.58));
-    backdrop-filter: blur(14px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(126, 214, 255, 0.05));
+    backdrop-filter: blur(12px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3);
 }
 
 .home-hero {
