@@ -120,45 +120,6 @@
     letter-spacing: 0.03em;
 }
 
-.mode-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    margin-top: 0.45rem;
-    padding: 0.2rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.mode-btn {
-    border: none;
-    background: transparent;
-    color: rgba(255, 255, 255, 0.56);
-    font-size: 0.72rem;
-    letter-spacing: 0.02em;
-    border-radius: 999px;
-    padding: 0.22rem 0.62rem;
-    cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
-}
-
-.mode-btn:hover {
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.mode-btn.active {
-    background: rgba(37, 99, 235, 0.25);
-    color: #dbeafe;
-}
-
-.mode-hint {
-    margin-top: 0.35rem;
-    font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.35);
-    letter-spacing: 0.02em;
-}
-
 /* ---------- Speaking Animation Rings ---------- */
 
 .speaking-rings {
@@ -585,10 +546,5 @@
 
     .voice-toggle-inline {
         display: none;
-    }
-
-    .mode-btn {
-        font-size: 0.68rem;
-        padding: 0.2rem 0.5rem;
     }
 }
