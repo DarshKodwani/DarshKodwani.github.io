@@ -64,9 +64,10 @@
     border: 3px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(37, 99, 235, 0.08);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    animation: avatar-idle 4s ease-in-out infinite;
+    animation: none; /* canvas handles all animation */
     position: relative;
     z-index: 1;
+    filter: saturate(1.15) contrast(1.05); /* slightly vivid animated-film look */
 }
 
 /* Idle breathing animation */
@@ -75,19 +76,10 @@
     50% { transform: scale(1.02) translateY(-3px); }
 }
 
-/* Speaking animation — animated, expressive */
+/* Speaking animation — canvas handles head movement; CSS just intensifies glow */
 .avatar-container.speaking .agent-avatar {
-    animation: avatar-speaking 0.5s ease-in-out infinite alternate;
+    animation: none;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5), 0 0 50px rgba(37, 99, 235, 0.2);
-}
-
-@keyframes avatar-speaking {
-    0% { transform: scale(1.0) rotate(0deg) translateY(0); }
-    20% { transform: scale(1.04) rotate(1deg) translateY(-4px); }
-    40% { transform: scale(1.01) rotate(-0.7deg) translateY(-1px); }
-    60% { transform: scale(1.05) rotate(0.5deg) translateY(-5px); }
-    80% { transform: scale(1.02) rotate(-1deg) translateY(-2px); }
-    100% { transform: scale(1.03) rotate(0.8deg) translateY(-3px); }
 }
 
 /* User speaking — pulse while mic is active */
@@ -114,58 +106,7 @@
     z-index: 2;
 }
 
-/* ---------- Mouth / Lip-Sync Layer ---------- */
-
-.mouth-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 2;
-    clip-path: ellipse(30% 10% at 50% 72%);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.mouth-layer .mouth-img {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    object-fit: cover;
-    transform-origin: 50% 72%;
-}
-
-/* Active when speaking */
-.avatar-container.speaking .mouth-layer {
-    opacity: 1;
-}
-
-.avatar-container.speaking .mouth-layer .mouth-img {
-    animation: mouth-move 0.28s ease-in-out infinite alternate;
-}
-
-@keyframes mouth-move {
-    0% {
-        clip-path: ellipse(30% 10% at 50% 72%);
-        transform: scaleY(1) translateY(0);
-    }
-    30% {
-        clip-path: ellipse(32% 14% at 50% 73%);
-        transform: scaleY(1.06) translateY(1px);
-    }
-    60% {
-        clip-path: ellipse(28% 9% at 50% 71%);
-        transform: scaleY(0.97) translateY(0);
-    }
-    100% {
-        clip-path: ellipse(33% 15% at 50% 73%);
-        transform: scaleY(1.08) translateY(1.5px);
-    }
-}
+/* Mouth animation is handled by canvas JS — no CSS mouth-layer needed */
 
 @keyframes pulse-dot {
     0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
@@ -589,12 +530,6 @@
     .ring-1 { width: 175px; height: 175px; }
     .ring-2 { width: 200px; height: 200px; }
     .ring-3 { width: 225px; height: 225px; }
-
-    .mouth-layer,
-    .mouth-layer .mouth-img {
-        width: 150px;
-        height: 150px;
-    }
 
     .response-text {
         font-size: 0.95rem;
