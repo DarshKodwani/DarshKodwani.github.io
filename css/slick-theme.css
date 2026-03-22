@@ -26,7 +26,7 @@ body.slick-theme .bg-video {
     height: 100vh;
     object-fit: cover;
     z-index: 0;
-    filter: saturate(1.12) contrast(1.06) brightness(0.55);
+    filter: saturate(1.16) contrast(1.08) brightness(0.72);
 }
 
 body.slick-theme::before {
@@ -35,10 +35,10 @@ body.slick-theme::before {
     inset: 0;
     z-index: 1;
     background:
-        radial-gradient(circle at 12% 12%, rgba(126, 214, 255, 0.24), transparent 36%),
-        radial-gradient(circle at 87% 15%, rgba(149, 255, 169, 0.2), transparent 34%),
-        radial-gradient(circle at 50% 100%, rgba(116, 120, 255, 0.2), transparent 42%),
-        linear-gradient(160deg, rgba(4, 10, 24, 0.72), rgba(6, 12, 25, 0.8));
+        radial-gradient(circle at 12% 12%, rgba(126, 214, 255, 0.2), transparent 36%),
+        radial-gradient(circle at 87% 15%, rgba(149, 255, 169, 0.17), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(116, 120, 255, 0.16), transparent 42%),
+        linear-gradient(160deg, rgba(4, 10, 24, 0.56), rgba(6, 12, 25, 0.62));
     pointer-events: none;
 }
 
