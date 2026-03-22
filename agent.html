@@ -498,6 +498,39 @@ function drawGlasses() {
     ctx.fill();
 }
 
+function drawCasualHat() {
+    // Soft beanie style for off-hours relaxed look
+    ctx.fillStyle = '#3d526e';
+    ctx.beginPath();
+    ctx.moveTo(132, 132);
+    ctx.quadraticCurveTo(142, 84, 200, 76);
+    ctx.quadraticCurveTo(258, 84, 268, 132);
+    ctx.quadraticCurveTo(248, 116, 226, 112);
+    ctx.quadraticCurveTo(200, 108, 174, 112);
+    ctx.quadraticCurveTo(152, 116, 132, 132);
+    ctx.closePath();
+    ctx.fill();
+
+    // Folded rim
+    ctx.fillStyle = '#2d3e54';
+    ctx.beginPath();
+    ctx.moveTo(130, 132);
+    ctx.quadraticCurveTo(200, 114, 270, 132);
+    ctx.quadraticCurveTo(262, 143, 248, 146);
+    ctx.quadraticCurveTo(200, 138, 152, 146);
+    ctx.quadraticCurveTo(138, 143, 130, 132);
+    ctx.closePath();
+    ctx.fill();
+
+    // Tiny highlight for fabric depth
+    ctx.strokeStyle = 'rgba(205, 225, 255, 0.16)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(156, 102);
+    ctx.quadraticCurveTo(200, 90, 244, 102);
+    ctx.stroke();
+}
+
 function drawNose() {
     ctx.strokeStyle = 'rgba(124, 73, 43, 0.55)';
     ctx.lineWidth = 3;
@@ -622,6 +655,7 @@ function drawAvatar() {
     drawEars();
     drawFaceShape();
     drawHair();
+    if (!isWorkHoursUK) drawCasualHat();
     drawBrows();
     drawEye(167, 172 + blinkPx * 0.06, -1);
     drawEye(233, 172 + blinkPx * 0.06, 1);
