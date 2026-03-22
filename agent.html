@@ -331,140 +331,166 @@ function drawBackdrop() {
 }
 
 function drawBody() {
-    ctx.fillStyle = '#1f2024';
+    ctx.fillStyle = '#1d1d20';
     ctx.beginPath();
-    ctx.moveTo(132, 360);
-    ctx.quadraticCurveTo(150, 286, 192, 278);
-    ctx.quadraticCurveTo(200, 276, 208, 278);
-    ctx.quadraticCurveTo(250, 286, 268, 360);
+    ctx.moveTo(124, 360);
+    ctx.quadraticCurveTo(142, 288, 186, 276);
+    ctx.quadraticCurveTo(200, 273, 214, 276);
+    ctx.quadraticCurveTo(258, 288, 276, 360);
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = '#2b2d32';
+    ctx.fillStyle = '#2a2b30';
     ctx.beginPath();
-    ctx.ellipse(200, 336, 78, 56, 0, 0, Math.PI * 2);
+    ctx.ellipse(200, 338, 84, 58, 0, 0, Math.PI * 2);
     ctx.fill();
 }
 
 function drawNeck() {
-    ctx.fillStyle = '#cf8e57';
+    ctx.fillStyle = '#c98856';
     ctx.beginPath();
-    ctx.moveTo(172, 258);
-    ctx.lineTo(228, 258);
-    ctx.quadraticCurveTo(222, 292, 200, 298);
-    ctx.quadraticCurveTo(178, 292, 172, 258);
+    ctx.moveTo(176, 260);
+    ctx.lineTo(224, 260);
+    ctx.quadraticCurveTo(221, 291, 200, 297);
+    ctx.quadraticCurveTo(179, 291, 176, 260);
     ctx.closePath();
     ctx.fill();
 }
 
 function drawEars() {
-    ctx.fillStyle = '#d7965f';
+    ctx.fillStyle = '#d58f58';
     ctx.beginPath();
-    ctx.ellipse(124, 180, 18, 26, -0.15, 0, Math.PI * 2);
-    ctx.ellipse(276, 180, 18, 26, 0.15, 0, Math.PI * 2);
+    ctx.ellipse(130, 182, 13, 22, -0.08, 0, Math.PI * 2);
+    ctx.ellipse(270, 182, 13, 22, 0.08, 0, Math.PI * 2);
     ctx.fill();
+
+    ctx.strokeStyle = 'rgba(115, 67, 42, 0.32)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(130, 184, 7, 0.8, 5.1);
+    ctx.arc(270, 184, 7, -1.95, 2.35);
+    ctx.stroke();
 }
 
 function drawFaceShape() {
-    ctx.fillStyle = '#d99a63';
+    ctx.fillStyle = '#d8945d';
     ctx.beginPath();
-    ctx.moveTo(146, 104);
-    ctx.quadraticCurveTo(108, 146, 122, 224);
-    ctx.quadraticCurveTo(134, 302, 200, 318);
-    ctx.quadraticCurveTo(266, 302, 278, 224);
-    ctx.quadraticCurveTo(292, 146, 254, 104);
-    ctx.quadraticCurveTo(200, 72, 146, 104);
+    ctx.moveTo(150, 101);
+    ctx.quadraticCurveTo(118, 130, 124, 218);
+    ctx.quadraticCurveTo(132, 294, 200, 314);
+    ctx.quadraticCurveTo(268, 294, 276, 218);
+    ctx.quadraticCurveTo(282, 130, 250, 101);
+    ctx.quadraticCurveTo(200, 78, 150, 101);
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(255, 226, 187, 0.24)';
+    ctx.fillStyle = 'rgba(255, 225, 186, 0.18)';
     ctx.beginPath();
-    ctx.ellipse(178, 164, 32, 52, -0.35, 0, Math.PI * 2);
+    ctx.ellipse(171, 164, 28, 54, -0.32, 0, Math.PI * 2);
+    ctx.ellipse(228, 170, 18, 42, 0.22, 0, Math.PI * 2);
     ctx.fill();
 }
 
 function drawHair() {
-    ctx.fillStyle = '#1a1514';
+    ctx.fillStyle = '#1d1715';
     ctx.beginPath();
-    ctx.moveTo(130, 134);
-    ctx.quadraticCurveTo(132, 84, 182, 70);
-    ctx.quadraticCurveTo(230, 56, 268, 88);
-    ctx.quadraticCurveTo(288, 106, 286, 148);
-    ctx.quadraticCurveTo(266, 126, 242, 116);
-    ctx.quadraticCurveTo(202, 96, 162, 104);
-    ctx.quadraticCurveTo(146, 108, 130, 134);
+    ctx.moveTo(129, 138);
+    ctx.quadraticCurveTo(130, 92, 172, 74);
+    ctx.quadraticCurveTo(212, 58, 252, 79);
+    ctx.quadraticCurveTo(286, 98, 283, 150);
+    ctx.quadraticCurveTo(269, 128, 242, 116);
+    ctx.quadraticCurveTo(208, 101, 170, 102);
+    ctx.quadraticCurveTo(145, 104, 129, 138);
     ctx.closePath();
     ctx.fill();
 
     ctx.beginPath();
-    ctx.moveTo(142, 132);
-    ctx.quadraticCurveTo(166, 90, 212, 92);
-    ctx.quadraticCurveTo(246, 94, 268, 120);
-    ctx.quadraticCurveTo(238, 118, 214, 112);
-    ctx.quadraticCurveTo(180, 104, 142, 132);
+    ctx.moveTo(145, 128);
+    ctx.quadraticCurveTo(160, 106, 176, 104);
+    ctx.quadraticCurveTo(170, 114, 165, 128);
+    ctx.quadraticCurveTo(180, 106, 198, 100);
+    ctx.quadraticCurveTo(194, 112, 192, 126);
+    ctx.quadraticCurveTo(212, 103, 233, 102);
+    ctx.quadraticCurveTo(226, 114, 224, 128);
+    ctx.quadraticCurveTo(244, 107, 264, 113);
+    ctx.quadraticCurveTo(255, 121, 249, 132);
+    ctx.quadraticCurveTo(220, 119, 197, 119);
+    ctx.quadraticCurveTo(170, 119, 145, 128);
     ctx.closePath();
     ctx.fill();
 }
 
 function drawBrows() {
-    const browY = 142 - browLift * 7;
-    ctx.strokeStyle = '#2a1914';
-    ctx.lineWidth = 10;
+    const browY = 145 - browLift * 6;
+    ctx.strokeStyle = '#2a1b15';
+    ctx.lineWidth = 9;
     ctx.lineCap = 'round';
 
     ctx.beginPath();
-    ctx.moveTo(150, browY + 4);
-    ctx.quadraticCurveTo(171, browY - 6, 192, browY + 1);
+    ctx.moveTo(148, browY + 3);
+    ctx.quadraticCurveTo(170, browY - 5, 192, browY + 1);
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(208, browY + 1);
-    ctx.quadraticCurveTo(229, browY - 6, 250, browY + 4);
+    ctx.quadraticCurveTo(230, browY - 5, 252, browY + 3);
     ctx.stroke();
 }
 
 function drawEye(centerX, centerY, side) {
-    const lidHeight = Math.max(2.5, 22 - blinkAmount * 20);
-    const irisX = centerX + side * pupilShift * 4;
+    const lidHeight = Math.max(3.2, 25 - blinkAmount * 22);
+    const irisX = centerX + side * pupilShift * 3.2;
 
     ctx.fillStyle = '#fff8ef';
     ctx.beginPath();
-    ctx.ellipse(centerX, centerY, 21, lidHeight, 0, 0, Math.PI * 2);
+    ctx.ellipse(centerX, centerY, 18, lidHeight, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#2c1c16';
+    ctx.fillStyle = '#352118';
     ctx.beginPath();
-    ctx.ellipse(irisX, centerY + 1, 8.6, Math.max(3, lidHeight * 0.65), 0, 0, Math.PI * 2);
+    ctx.ellipse(irisX, centerY + 1, 10, Math.max(4, lidHeight * 0.72), 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#120c09';
+    ctx.beginPath();
+    ctx.arc(irisX, centerY + 2, 4.5, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(irisX + 3, centerY - 4, 2.4, 0, Math.PI * 2);
+    ctx.arc(irisX + 3, centerY - 5, 2.6, 0, Math.PI * 2);
+    ctx.arc(irisX - 1, centerY - 2, 1.2, 0, Math.PI * 2);
     ctx.fill();
+
+    ctx.strokeStyle = 'rgba(91, 50, 33, 0.3)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 18, Math.PI, 0);
+    ctx.stroke();
 }
 
 function drawNose() {
-    ctx.strokeStyle = 'rgba(124, 73, 43, 0.55)';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(124, 73, 43, 0.42)';
+    ctx.lineWidth = 2.5;
     ctx.lineCap = 'round';
 
     ctx.beginPath();
-    ctx.moveTo(203, 168);
-    ctx.quadraticCurveTo(197, 194, 202, 221);
+    ctx.moveTo(202, 172);
+    ctx.quadraticCurveTo(196, 196, 201, 219);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(195, 221);
-    ctx.quadraticCurveTo(201, 228, 212, 222);
+    ctx.moveTo(196, 219);
+    ctx.quadraticCurveTo(202, 226, 210, 220);
     ctx.stroke();
 }
 
 function drawMouth(mouthMetrics) {
-    const mouthWidth = 52 * mouthMetrics.width;
-    const mouthHeight = 5 + mouthMetrics.open;
-    const mouthY = 244 + mouthMetrics.open * 0.18;
-    const upperLipArc = 3 + mouthMetrics.roundness * 7;
-    const lowerLipDepth = mouthHeight * (1.3 + mouthMetrics.roundness * 0.45);
+    const mouthWidth = 42 * mouthMetrics.width;
+    const mouthHeight = 3 + mouthMetrics.open;
+    const mouthY = 247 + mouthMetrics.open * 0.15;
+    const upperLipArc = 2 + mouthMetrics.roundness * 5;
+    const lowerLipDepth = mouthHeight * (1.15 + mouthMetrics.roundness * 0.42);
     const squeezeInset = mouthMetrics.squeeze * 10;
 
     ctx.fillStyle = '#6e2a22';
@@ -477,7 +503,7 @@ function drawMouth(mouthMetrics) {
 
     if (mouthMetrics.teeth > 0.05) {
         const teethWidth = mouthWidth * (0.72 - mouthMetrics.roundness * 0.18);
-        const teethHeight = 5 + mouthMetrics.teeth * 8;
+        const teethHeight = 4 + mouthMetrics.teeth * 7;
         ctx.fillStyle = '#f8eee8';
         roundedRectPath(200 - teethWidth / 2, mouthY + 2, teethWidth, teethHeight, 4);
         ctx.fill();
@@ -499,18 +525,18 @@ function drawMouth(mouthMetrics) {
     }
 
     ctx.strokeStyle = '#6b3225';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.4;
     ctx.beginPath();
     ctx.moveTo(200 - mouthWidth / 2, mouthY - 1);
-    ctx.quadraticCurveTo(200, mouthY + 5 + (1 - mouthAmp) * 3, 200 + mouthWidth / 2, mouthY - 1);
+    ctx.quadraticCurveTo(200, mouthY + 4 + (1 - mouthAmp) * 2.2, 200 + mouthWidth / 2, mouthY - 1);
     ctx.stroke();
 }
 
 function drawCheeks() {
-    ctx.fillStyle = 'rgba(193, 98, 80, 0.14)';
+    ctx.fillStyle = 'rgba(193, 98, 80, 0.09)';
     ctx.beginPath();
-    ctx.ellipse(152, 222, 22, 13, -0.2, 0, Math.PI * 2);
-    ctx.ellipse(248, 222, 22, 13, 0.2, 0, Math.PI * 2);
+    ctx.ellipse(156, 224, 18, 11, -0.2, 0, Math.PI * 2);
+    ctx.ellipse(244, 224, 18, 11, 0.2, 0, Math.PI * 2);
     ctx.fill();
 }
 
@@ -599,8 +625,8 @@ function drawAvatar() {
     drawFaceShape();
     drawHair();
     drawBrows();
-    drawEye(167, 172 + blinkPx * 0.06, -1);
-    drawEye(233, 172 + blinkPx * 0.06, 1);
+    drawEye(166, 173 + blinkPx * 0.06, -1);
+    drawEye(234, 173 + blinkPx * 0.06, 1);
     drawNose();
     drawCheeks();
     drawMouth(mouthMetrics);
