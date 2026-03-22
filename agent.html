@@ -208,6 +208,83 @@ let headTiltTarget = 0;
 let headBob = 0;
 let browLift = 0;
 let pupilShift = 0;
+let speechWordTimer = null;
+let speechStartedAt = 0;
+let currentSpeechText = '';
+let visemeState = {
+    openness: 0.12,
+    width: 0.88,
+    roundness: 0.18,
+    squeeze: 0.1,
+    teeth: 0,
+    tongue: 0
+};
+let targetVisemeState = { ...visemeState };
+
+const VISEMES = {
+    rest:   { openness: 0.12, width: 0.88, roundness: 0.18, squeeze: 0.10, teeth: 0.00, tongue: 0.00 },
+    closed: { openness: 0.02, width: 0.82, roundness: 0.10, squeeze: 0.72, teeth: 0.00, tongue: 0.00 },
+    wide:   { openness: 0.36, width: 1.18, roundness: 0.04, squeeze: 0.10, teeth: 0.55, tongue: 0.05 },
+    open:   { openness: 0.70, width: 0.98, roundness: 0.16, squeeze: 0.05, teeth: 0.18, tongue: 0.45 },
+    round:  { openness: 0.52, width: 0.72, roundness: 0.70, squeeze: 0.08, teeth: 0.08, tongue: 0.18 },
+    bite:   { openness: 0.28, width: 1.00, roundness: 0.08, squeeze: 0.28, teeth: 0.82, tongue: 0.00 },
+    tongue: { openness: 0.40, width: 0.94, roundness: 0.12, squeeze: 0.12, teeth: 0.22, tongue: 0.82 }
+};
+
+function clearSpeechWordTimer() {
+    if (speechWordTimer) {
+        clearTimeout(speechWordTimer);
+        speechWordTimer = null;
+    }
+}
+
+function setTargetViseme(name) {
+    targetVisemeState = { ...(VISEMES[name] || VISEMES.rest) };
+}
+
+function visemeForToken(token) {
+    const clean = token.toLowerCase().replace(/[^a-z]/g, '');
+    if (!clean) return 'rest';
+    if (/^(mm|hm|mmm)$/.test(clean) || /[bmp]$/.test(clean)) return 'closed';
+    if (/[fv]/.test(clean)) return 'bite';
+    if (/[lrntdskgj]/.test(clean) && /[lr]/.test(clean)) return 'tongue';
+    if (/[ouqyw]/.test(clean)) return 'round';
+    if (/[iea]/.test(clean)) return 'wide';
+    return 'open';
+}
+
+function scheduleFallbackVisemes(text, utterance) {
+    clearSpeechWordTimer();
+    const words = text.match(/\b[^\s]+\b/g) || [];
+    if (!words.length) return;
+
+    let wordIndex = 0;
+    const msPerWord = Math.max(110, 215 / Math.max(0.75, utterance.rate || 1));
+
+    const advanceWord = () => {
+        if (!isSpeakingAnim || wordIndex >= words.length) {
+            setTargetViseme('rest');
+            return;
+        }
+
+        setTargetViseme(visemeForToken(words[wordIndex]));
+        wordIndex += 1;
+        speechWordTimer = setTimeout(advanceWord, msPerWord);
+    };
+
+    advanceWord();
+}
+
+function handleSpeechBoundary(event, utterance) {
+    if (typeof event.charIndex !== 'number' || !currentSpeechText) return;
+    const trailing = currentSpeechText.slice(event.charIndex);
+    const token = trailing.match(/^\S+/)?.[0] || '';
+    if (token) {
+        setTargetViseme(visemeForToken(token));
+    } else if (event.name === 'sentence') {
+        setTargetViseme('rest');
+    }
+}
 
 function roundedRectPath(x, y, width, height, radius) {
     const safeRadius = Math.min(radius, width / 2, height / 2);
@@ -382,36 +459,50 @@ function drawNose() {
     ctx.stroke();
 }
 
-function drawMouth(mouthOpen) {
-    const mouthWidth = 52 + mouthOpen * 0.5;
-    const mouthHeight = 8 + mouthOpen;
-    const mouthY = 244 + mouthOpen * 0.24;
-    const smileLift = 6 + (1 - mouthAmp) * 4;
+function drawMouth(mouthMetrics) {
+    const mouthWidth = 52 * mouthMetrics.width;
+    const mouthHeight = 5 + mouthMetrics.open;
+    const mouthY = 244 + mouthMetrics.open * 0.18;
+    const upperLipArc = 3 + mouthMetrics.roundness * 7;
+    const lowerLipDepth = mouthHeight * (1.3 + mouthMetrics.roundness * 0.45);
+    const squeezeInset = mouthMetrics.squeeze * 10;
 
     ctx.fillStyle = '#6e2a22';
     ctx.beginPath();
-    ctx.moveTo(200 - mouthWidth / 2, mouthY);
-    ctx.quadraticCurveTo(200, mouthY + mouthHeight, 200 + mouthWidth / 2, mouthY);
-    ctx.quadraticCurveTo(200, mouthY + mouthHeight * 1.9, 200 - mouthWidth / 2, mouthY);
+    ctx.moveTo(200 - mouthWidth / 2 + squeezeInset, mouthY);
+    ctx.quadraticCurveTo(200, mouthY + upperLipArc, 200 + mouthWidth / 2 - squeezeInset, mouthY);
+    ctx.quadraticCurveTo(200, mouthY + lowerLipDepth, 200 - mouthWidth / 2 + squeezeInset, mouthY);
     ctx.closePath();
     ctx.fill();
 
-    if (mouthOpen > 6) {
+    if (mouthMetrics.teeth > 0.05) {
+        const teethWidth = mouthWidth * (0.72 - mouthMetrics.roundness * 0.18);
+        const teethHeight = 5 + mouthMetrics.teeth * 8;
         ctx.fillStyle = '#f8eee8';
-        roundedRectPath(200 - mouthWidth / 2 + 6, mouthY + 3, mouthWidth - 12, 8, 4);
+        roundedRectPath(200 - teethWidth / 2, mouthY + 2, teethWidth, teethHeight, 4);
         ctx.fill();
+    }
 
+    if (mouthMetrics.tongue > 0.05) {
         ctx.fillStyle = '#c95d6f';
         ctx.beginPath();
-        ctx.ellipse(200, mouthY + mouthHeight + 4, mouthWidth * 0.26, mouthHeight * 0.26, 0, 0, Math.PI * 2);
+        ctx.ellipse(
+            200,
+            mouthY + mouthHeight + 2,
+            mouthWidth * 0.22,
+            3 + mouthMetrics.tongue * 7,
+            0,
+            0,
+            Math.PI * 2
+        );
         ctx.fill();
     }
 
     ctx.strokeStyle = '#6b3225';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(200 - mouthWidth / 2 - 4, mouthY - 2);
-    ctx.quadraticCurveTo(200, mouthY + smileLift, 200 + mouthWidth / 2 + 4, mouthY - 2);
+    ctx.moveTo(200 - mouthWidth / 2, mouthY - 1);
+    ctx.quadraticCurveTo(200, mouthY + 5 + (1 - mouthAmp) * 3, 200 + mouthWidth / 2, mouthY - 1);
     ctx.stroke();
 }
 
@@ -426,6 +517,7 @@ function drawCheeks() {
 function startAvatarAnim() {
     isSpeakingAnim = true;
     targetMouthAmp = 1;
+    setTargetViseme('open');
     scheduleHeadTilt();
 }
 
@@ -433,6 +525,9 @@ function stopAvatarAnim() {
     isSpeakingAnim = false;
     targetMouthAmp = 0;
     headTiltTarget = 0;
+    clearSpeechWordTimer();
+    currentSpeechText = '';
+    setTargetViseme('rest');
 }
 
 function scheduleHeadTilt() {
@@ -444,6 +539,12 @@ function scheduleHeadTilt() {
 function drawAvatar() {
     mouthAmp += (targetMouthAmp - mouthAmp) * 0.15;
     browLift += ((isSpeakingAnim ? 1 : 0) - browLift) * 0.08;
+    visemeState.openness += (targetVisemeState.openness - visemeState.openness) * 0.28;
+    visemeState.width += (targetVisemeState.width - visemeState.width) * 0.28;
+    visemeState.roundness += (targetVisemeState.roundness - visemeState.roundness) * 0.28;
+    visemeState.squeeze += (targetVisemeState.squeeze - visemeState.squeeze) * 0.28;
+    visemeState.teeth += (targetVisemeState.teeth - visemeState.teeth) * 0.24;
+    visemeState.tongue += (targetVisemeState.tongue - visemeState.tongue) * 0.22;
 
     if (isSpeakingAnim) {
         mouthSpeed = 0.18 + Math.sin(mouthPhase * 0.3) * 0.1;
@@ -453,7 +554,14 @@ function drawAvatar() {
     const rawMouth = Math.abs(Math.sin(mouthPhase)) * 0.6
                    + Math.abs(Math.sin(mouthPhase * 1.7)) * 0.25
                    + Math.abs(Math.sin(mouthPhase * 0.5)) * 0.15;
-    const mouthOpen = mouthAmp * rawMouth * 30;
+    const mouthMetrics = {
+        open: 4 + visemeState.openness * (8 + mouthAmp * 20) + mouthAmp * rawMouth * 5,
+        width: visemeState.width + mouthAmp * 0.05,
+        roundness: visemeState.roundness,
+        squeeze: visemeState.squeeze,
+        teeth: visemeState.teeth,
+        tongue: visemeState.tongue
+    };
     pupilShift = Math.sin(mouthPhase * 0.25) * 0.35;
 
     blinkTimer++;
@@ -495,7 +603,7 @@ function drawAvatar() {
     drawEye(233, 172 + blinkPx * 0.06, 1);
     drawNose();
     drawCheeks();
-    drawMouth(mouthOpen);
+    drawMouth(mouthMetrics);
 
     ctx.restore();
     requestAnimationFrame(drawAvatar);
@@ -572,6 +680,9 @@ function speakText(text) {
     if (!toggle.checked || !window.speechSynthesis) return;
 
     window.speechSynthesis.cancel();
+    clearSpeechWordTimer();
+    currentSpeechText = text;
+    speechStartedAt = performance.now();
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
@@ -583,10 +694,15 @@ function speakText(text) {
         || voices.find(v => v.lang.startsWith('en') && v.localService);
     if (preferred) utterance.voice = preferred;
 
+    utterance.onboundary = (event) => {
+        handleSpeechBoundary(event, utterance);
+    };
+
     utterance.onstart = () => {
         document.getElementById('avatarContainer').classList.add('speaking');
         document.getElementById('stopBtn').classList.add('visible');
         startAvatarAnim();
+        scheduleFallbackVisemes(text, utterance);
     };
     utterance.onend = () => {
         document.getElementById('avatarContainer').classList.remove('speaking');
