@@ -193,9 +193,10 @@ const canvas = document.getElementById('avatarCanvas');
 const ctx = canvas.getContext('2d');
 const avatarImg = new Image();
 avatarImg.crossOrigin = 'anonymous';
-avatarImg.src = 'https://github.com/DarshKodwani.png';
+// Use direct avatars URL (avoids github.com redirect which can break CORS)
+avatarImg.src = 'https://avatars.githubusercontent.com/DarshKodwani';
 
-const S = 400; // internal canvas resolution (displayed at 200px via CSS)
+const S = 400; // canvas internal resolution
 
 // Face landmark proportions (fraction of image height)
 const EYE_TOP = 0.36;
@@ -207,14 +208,15 @@ const MOUTH_BOT = 0.73;
 let isSpeakingAnim = false;
 let mouthPhase = 0;
 let mouthSpeed = 0.25;
-let mouthAmp = 0;          // smoothed current amplitude
-let targetMouthAmp = 0;    // target amplitude (0 or 1)
+let mouthAmp = 0;
+let targetMouthAmp = 0;
 let blinkTimer = 0;
-let blinkState = 0;        // 0=open, 1=closing, 2=opening
+let blinkState = 0;
 let blinkAmount = 0;
 let headTilt = 0;
 let headTiltTarget = 0;
 let headBob = 0;
+let imgReady = false;
 
 function startAvatarAnim() {
     isSpeakingAnim = true;
@@ -235,6 +237,12 @@ function scheduleHeadTilt() {
 }
 
 function drawAvatar() {
+    if (!imgReady) { requestAnimationFrame(drawAvatar); return; }
+
+    // Source image actual size
+    const W = avatarImg.naturalWidth;
+    const H = avatarImg.naturalHeight;
+
     // Smooth mouth amplitude
     mouthAmp += (targetMouthAmp - mouthAmp) * 0.12;
 
@@ -250,10 +258,7 @@ function drawAvatar() {
     // Blink logic
     blinkTimer++;
     if (blinkState === 0 && blinkTimer > 140) {
-        if (Math.random() < 0.015) {
-            blinkState = 1;
-            blinkTimer = 0;
-        }
+        if (Math.random() < 0.015) { blinkState = 1; blinkTimer = 0; }
     }
     if (blinkState === 1) {
         blinkAmount = Math.min(blinkAmount + 0.3, 1);
@@ -284,45 +289,60 @@ function drawAvatar() {
     ctx.arc(S / 2, S / 2, S / 2 - 2, 0, Math.PI * 2);
     ctx.clip();
 
-    const eyeTop = S * EYE_TOP;
-    const eyeBot = S * EYE_BOT;
-    const mTop   = S * MOUTH_TOP;
-    const mBot   = S * MOUTH_BOT;
-    const eyeH   = eyeBot - eyeTop;
-    const midH   = mTop - eyeBot;
-    const mouthH = mBot - mTop;
-    const chinH  = S - mBot;
+    // Source regions (in image pixels)
+    const sEyeTop = H * EYE_TOP;
+    const sEyeBot = H * EYE_BOT;
+    const sMTop   = H * MOUTH_TOP;
+    const sMBot   = H * MOUTH_BOT;
+    const sEyeH   = sEyeBot - sEyeTop;
+    const sMidH   = sMTop - sEyeBot;
+    const sMouthH = sMBot - sMTop;
+    const sChinH  = H - sMBot;
+
+    // Destination regions (in canvas pixels)
+    const dEyeTop = S * EYE_TOP;
+    const dEyeBot = S * EYE_BOT;
+    const dMTop   = S * MOUTH_TOP;
+    const dMBot   = S * MOUTH_BOT;
+    const dEyeH   = dEyeBot - dEyeTop;
+    const dMidH   = dMTop - dEyeBot;
+    const dMouthH = dMBot - dMTop;
+    const dChinH  = S - dMBot;
 
     // 1) Above eyes — unchanged
-    ctx.drawImage(avatarImg, 0, 0, S, eyeTop, 0, 0, S, eyeTop);
+    ctx.drawImage(avatarImg, 0, 0, W, sEyeTop, 0, 0, S, dEyeTop);
 
     // 2) Eye region — squish on blink
     ctx.drawImage(avatarImg,
-        0, eyeTop, S, eyeH,
-        0, eyeTop + blinkPx * 0.5, S, eyeH - blinkPx);
+        0, sEyeTop, W, sEyeH,
+        0, dEyeTop + blinkPx * 0.5, S, dEyeH - blinkPx);
 
     // 3) Between eyes and mouth
     ctx.drawImage(avatarImg,
-        0, eyeBot, S, midH,
-        0, eyeBot - blinkPx * 0.3, S, midH + blinkPx * 0.3);
+        0, sEyeBot, W, sMidH,
+        0, dEyeBot - blinkPx * 0.3, S, dMidH + blinkPx * 0.3);
 
-    // 4) Mouth region — stretch
+    // 4) Mouth region — stretch open
     ctx.drawImage(avatarImg,
-        0, mTop, S, mouthH,
-        0, mTop, S, mouthH + mouthOpen);
+        0, sMTop, W, sMouthH,
+        0, dMTop, S, dMouthH + mouthOpen);
 
     // 5) Chin — shift down
     ctx.drawImage(avatarImg,
-        0, mBot, S, chinH,
-        0, mBot + mouthOpen, S, chinH);
+        0, sMBot, W, sChinH,
+        0, dMBot + mouthOpen, S, dChinH);
 
     ctx.restore();
     requestAnimationFrame(drawAvatar);
 }
 
-avatarImg.onload = () => { drawAvatar(); };
-// Fallback if image was cached (onload won't fire)
-if (avatarImg.complete && avatarImg.naturalWidth) drawAvatar();
+avatarImg.onload = () => { imgReady = true; drawAvatar(); };
+avatarImg.onerror = () => {
+    // Fallback: try the redirect URL if direct fails
+    if (!avatarImg.src.includes('github.com/DarshKodwani')) {
+        avatarImg.src = 'https://github.com/DarshKodwani.png';
+    }
+};
 
 // ============================================================
 // VOICE: Speech Recognition (input)
