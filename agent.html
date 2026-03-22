@@ -191,17 +191,8 @@ let conversationHistory = [
 // ============================================================
 const canvas = document.getElementById('avatarCanvas');
 const ctx = canvas.getContext('2d');
-const avatarImg = new Image();
-// Local image — no CORS issues
-avatarImg.src = 'Images/avatar.png';
 
 const S = 400; // canvas internal resolution
-
-// Face landmark proportions (fraction of image height)
-const EYE_TOP = 0.35;
-const EYE_BOT = 0.47;
-const MOUTH_TOP = 0.62;
-const MOUTH_BOT = 0.74;
 
 // Animation state
 let isSpeakingAnim = false;
@@ -215,7 +206,222 @@ let blinkAmount = 0;
 let headTilt = 0;
 let headTiltTarget = 0;
 let headBob = 0;
-let imgReady = false;
+let browLift = 0;
+let pupilShift = 0;
+
+function roundedRectPath(x, y, width, height, radius) {
+    const safeRadius = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + safeRadius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, safeRadius);
+    ctx.arcTo(x + width, y + height, x, y + height, safeRadius);
+    ctx.arcTo(x, y + height, x, y, safeRadius);
+    ctx.arcTo(x, y, x + width, y, safeRadius);
+    ctx.closePath();
+}
+
+function drawBackdrop() {
+    const backdrop = ctx.createRadialGradient(200, 145, 30, 200, 220, 245);
+    backdrop.addColorStop(0, '#2d5562');
+    backdrop.addColorStop(0.55, '#1f3947');
+    backdrop.addColorStop(1, '#11212b');
+    ctx.fillStyle = backdrop;
+    ctx.fillRect(0, 0, S, S);
+
+    ctx.fillStyle = 'rgba(236, 197, 93, 0.16)';
+    for (let index = 0; index < 18; index++) {
+        const x = 22 + ((index * 43) % 360);
+        const y = 34 + ((index * 61) % 150);
+        ctx.beginPath();
+        ctx.arc(x, y, index % 3 === 0 ? 2.2 : 1.2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = 'rgba(230, 188, 82, 0.22)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(98, 82, 23, 0.15, Math.PI * 1.75);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(304, 74, 18, 0.4, Math.PI * 1.95);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(126, 222, 211, 0.18)';
+    roundedRectPath(250, 118, 98, 80, 10);
+    ctx.stroke();
+    roundedRectPath(262, 208, 88, 62, 10);
+    ctx.stroke();
+}
+
+function drawBody() {
+    ctx.fillStyle = '#1f2024';
+    ctx.beginPath();
+    ctx.moveTo(132, 360);
+    ctx.quadraticCurveTo(150, 286, 192, 278);
+    ctx.quadraticCurveTo(200, 276, 208, 278);
+    ctx.quadraticCurveTo(250, 286, 268, 360);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#2b2d32';
+    ctx.beginPath();
+    ctx.ellipse(200, 336, 78, 56, 0, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawNeck() {
+    ctx.fillStyle = '#cf8e57';
+    ctx.beginPath();
+    ctx.moveTo(172, 258);
+    ctx.lineTo(228, 258);
+    ctx.quadraticCurveTo(222, 292, 200, 298);
+    ctx.quadraticCurveTo(178, 292, 172, 258);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawEars() {
+    ctx.fillStyle = '#d7965f';
+    ctx.beginPath();
+    ctx.ellipse(124, 180, 18, 26, -0.15, 0, Math.PI * 2);
+    ctx.ellipse(276, 180, 18, 26, 0.15, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawFaceShape() {
+    ctx.fillStyle = '#d99a63';
+    ctx.beginPath();
+    ctx.moveTo(146, 104);
+    ctx.quadraticCurveTo(108, 146, 122, 224);
+    ctx.quadraticCurveTo(134, 302, 200, 318);
+    ctx.quadraticCurveTo(266, 302, 278, 224);
+    ctx.quadraticCurveTo(292, 146, 254, 104);
+    ctx.quadraticCurveTo(200, 72, 146, 104);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 226, 187, 0.24)';
+    ctx.beginPath();
+    ctx.ellipse(178, 164, 32, 52, -0.35, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawHair() {
+    ctx.fillStyle = '#1a1514';
+    ctx.beginPath();
+    ctx.moveTo(130, 134);
+    ctx.quadraticCurveTo(132, 84, 182, 70);
+    ctx.quadraticCurveTo(230, 56, 268, 88);
+    ctx.quadraticCurveTo(288, 106, 286, 148);
+    ctx.quadraticCurveTo(266, 126, 242, 116);
+    ctx.quadraticCurveTo(202, 96, 162, 104);
+    ctx.quadraticCurveTo(146, 108, 130, 134);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(142, 132);
+    ctx.quadraticCurveTo(166, 90, 212, 92);
+    ctx.quadraticCurveTo(246, 94, 268, 120);
+    ctx.quadraticCurveTo(238, 118, 214, 112);
+    ctx.quadraticCurveTo(180, 104, 142, 132);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawBrows() {
+    const browY = 142 - browLift * 7;
+    ctx.strokeStyle = '#2a1914';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(150, browY + 4);
+    ctx.quadraticCurveTo(171, browY - 6, 192, browY + 1);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(208, browY + 1);
+    ctx.quadraticCurveTo(229, browY - 6, 250, browY + 4);
+    ctx.stroke();
+}
+
+function drawEye(centerX, centerY, side) {
+    const lidHeight = Math.max(2.5, 22 - blinkAmount * 20);
+    const irisX = centerX + side * pupilShift * 4;
+
+    ctx.fillStyle = '#fff8ef';
+    ctx.beginPath();
+    ctx.ellipse(centerX, centerY, 21, lidHeight, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#2c1c16';
+    ctx.beginPath();
+    ctx.ellipse(irisX, centerY + 1, 8.6, Math.max(3, lidHeight * 0.65), 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(irisX + 3, centerY - 4, 2.4, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawNose() {
+    ctx.strokeStyle = 'rgba(124, 73, 43, 0.55)';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(203, 168);
+    ctx.quadraticCurveTo(197, 194, 202, 221);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(195, 221);
+    ctx.quadraticCurveTo(201, 228, 212, 222);
+    ctx.stroke();
+}
+
+function drawMouth(mouthOpen) {
+    const mouthWidth = 52 + mouthOpen * 0.5;
+    const mouthHeight = 8 + mouthOpen;
+    const mouthY = 244 + mouthOpen * 0.24;
+    const smileLift = 6 + (1 - mouthAmp) * 4;
+
+    ctx.fillStyle = '#6e2a22';
+    ctx.beginPath();
+    ctx.moveTo(200 - mouthWidth / 2, mouthY);
+    ctx.quadraticCurveTo(200, mouthY + mouthHeight, 200 + mouthWidth / 2, mouthY);
+    ctx.quadraticCurveTo(200, mouthY + mouthHeight * 1.9, 200 - mouthWidth / 2, mouthY);
+    ctx.closePath();
+    ctx.fill();
+
+    if (mouthOpen > 6) {
+        ctx.fillStyle = '#f8eee8';
+        roundedRectPath(200 - mouthWidth / 2 + 6, mouthY + 3, mouthWidth - 12, 8, 4);
+        ctx.fill();
+
+        ctx.fillStyle = '#c95d6f';
+        ctx.beginPath();
+        ctx.ellipse(200, mouthY + mouthHeight + 4, mouthWidth * 0.26, mouthHeight * 0.26, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = '#6b3225';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(200 - mouthWidth / 2 - 4, mouthY - 2);
+    ctx.quadraticCurveTo(200, mouthY + smileLift, 200 + mouthWidth / 2 + 4, mouthY - 2);
+    ctx.stroke();
+}
+
+function drawCheeks() {
+    ctx.fillStyle = 'rgba(193, 98, 80, 0.14)';
+    ctx.beginPath();
+    ctx.ellipse(152, 222, 22, 13, -0.2, 0, Math.PI * 2);
+    ctx.ellipse(248, 222, 22, 13, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+}
 
 function startAvatarAnim() {
     isSpeakingAnim = true;
@@ -236,27 +442,20 @@ function scheduleHeadTilt() {
 }
 
 function drawAvatar() {
-    if (!imgReady) { requestAnimationFrame(drawAvatar); return; }
-
-    const W = avatarImg.naturalWidth;
-    const H = avatarImg.naturalHeight;
-
-    // Smooth mouth amplitude
     mouthAmp += (targetMouthAmp - mouthAmp) * 0.15;
+    browLift += ((isSpeakingAnim ? 1 : 0) - browLift) * 0.08;
 
-    // Vary mouth speed for natural feel
     if (isSpeakingAnim) {
         mouthSpeed = 0.18 + Math.sin(mouthPhase * 0.3) * 0.1;
         mouthPhase += mouthSpeed;
     }
-    // Composite of two sine waves for organic rhythm
+
     const rawMouth = Math.abs(Math.sin(mouthPhase)) * 0.6
                    + Math.abs(Math.sin(mouthPhase * 1.7)) * 0.25
                    + Math.abs(Math.sin(mouthPhase * 0.5)) * 0.15;
-    // Much larger movement: 30px max mouth stretch on a 400px canvas
     const mouthOpen = mouthAmp * rawMouth * 30;
+    pupilShift = Math.sin(mouthPhase * 0.25) * 0.35;
 
-    // Blink logic
     blinkTimer++;
     if (blinkState === 0 && blinkTimer > 100) {
         if (Math.random() < 0.02) { blinkState = 1; blinkTimer = 0; }
@@ -270,68 +469,39 @@ function drawAvatar() {
     }
     const blinkPx = blinkAmount * 10;
 
-    // Head tilt + bob
     headTilt += (headTiltTarget - headTilt) * 0.05;
     headBob = isSpeakingAnim
         ? Math.sin(mouthPhase * 0.3) * 4
         : headBob * 0.93;
 
-    // --- Draw ---
     ctx.clearRect(0, 0, S, S);
     ctx.save();
-
-    // Head rotation + bob around center
     ctx.translate(S / 2, S / 2);
     ctx.rotate(headTilt * Math.PI / 180);
     ctx.translate(-S / 2, -S / 2 + headBob);
 
-    // Circular clip
     ctx.beginPath();
     ctx.arc(S / 2, S / 2, S / 2 - 2, 0, Math.PI * 2);
     ctx.clip();
 
-    // Source regions (image pixels)
-    const sEyeTop = H * EYE_TOP;
-    const sEyeBot = H * EYE_BOT;
-    const sMTop   = H * MOUTH_TOP;
-    const sMBot   = H * MOUTH_BOT;
-
-    // Destination regions (canvas pixels)
-    const dEyeTop = S * EYE_TOP;
-    const dEyeBot = S * EYE_BOT;
-    const dMTop   = S * MOUTH_TOP;
-    const dMBot   = S * MOUTH_BOT;
-
-    // 1) Forehead — static
-    ctx.drawImage(avatarImg,
-        0, 0, W, sEyeTop,
-        0, 0, S, dEyeTop);
-
-    // 2) Eyes — squish vertically on blink
-    ctx.drawImage(avatarImg,
-        0, sEyeTop, W, sEyeBot - sEyeTop,
-        0, dEyeTop + blinkPx * 0.5, S, (dEyeBot - dEyeTop) - blinkPx);
-
-    // 3) Nose / cheeks — bridge between eyes and mouth
-    ctx.drawImage(avatarImg,
-        0, sEyeBot, W, sMTop - sEyeBot,
-        0, dEyeBot - blinkPx * 0.3, S, (dMTop - dEyeBot) + blinkPx * 0.3);
-
-    // 4) Mouth strip — stretch vertically to open mouth
-    ctx.drawImage(avatarImg,
-        0, sMTop, W, sMBot - sMTop,
-        0, dMTop, S, (dMBot - dMTop) + mouthOpen);
-
-    // 5) Chin — push down by mouth amount
-    ctx.drawImage(avatarImg,
-        0, sMBot, W, H - sMBot,
-        0, dMBot + mouthOpen, S, S - dMBot);
+    drawBackdrop();
+    drawBody();
+    drawNeck();
+    drawEars();
+    drawFaceShape();
+    drawHair();
+    drawBrows();
+    drawEye(167, 172 + blinkPx * 0.06, -1);
+    drawEye(233, 172 + blinkPx * 0.06, 1);
+    drawNose();
+    drawCheeks();
+    drawMouth(mouthOpen);
 
     ctx.restore();
     requestAnimationFrame(drawAvatar);
 }
 
-avatarImg.onload = () => { imgReady = true; drawAvatar(); };
+drawAvatar();
 
 // ============================================================
 // VOICE: Speech Recognition (input)
