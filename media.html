@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/slick-theme.css">
     <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="css/site-shell.css">
+    <script src="assets/js/site-shell.js" defer></script>
 </head>
 
 <body class="slick-theme">
@@ -16,19 +18,23 @@
         <source src="video.mp4" type="video/mp4">
     </video>
 
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <ul class="nav navbar-nav">
-                <li><a id="len1" class="hoverable" href="index.html">Home</a></li>
-                <li><a id="len1" class="hoverable" href="about_me.html">About me</a></li>
-                <li><a id="len2" class="hoverable" href="research.html">Research</a></li>
-                <li><a id="len3" class="hoverable" href="teaching.html">Teaching</a></li>
-                <li><a id="len4" class="hoverable" href="consulting.html">Consulting</a></li>
-                <li><a id="len4" class="hoverable" href="media.html">Media</a></li>
-                <li><a id="len5" class="hoverable" href="agent.html">Ask My AI</a></li>
-            </ul>
-        </div>
-    </nav>
+    <header class="site-header">
+        <nav class="site-nav" aria-label="Primary">
+            <a class="site-nav__brand" href="index.html">
+                <span class="site-nav__brand-mark">DK</span>
+                <span class="site-nav__brand-text">Darsh Kodwani</span>
+            </a>
+            <div class="site-nav__links">
+                <a class="site-nav__link" href="index.html">Home</a>
+                <a class="site-nav__link" href="about_me.html">About</a>
+                <a class="site-nav__link" href="research.html">Research</a>
+                <a class="site-nav__link" href="teaching.html">Teaching</a>
+                <a class="site-nav__link" href="consulting.html">Consulting</a>
+                <a class="site-nav__link" href="media.html">Media</a>
+                <a class="site-nav__link" href="agent.html">Ask My AI</a>
+            </div>
+        </nav>
+    </header>
 
     <div class="media_content">
 
