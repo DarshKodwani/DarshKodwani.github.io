@@ -208,6 +208,25 @@ let headTiltTarget = 0;
 let headBob = 0;
 let browLift = 0;
 let pupilShift = 0;
+let isWorkHoursUK = true;
+
+function updateAvatarModeByUKTime() {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/London',
+        weekday: 'short',
+        hour: '2-digit',
+        hour12: false
+    }).formatToParts(new Date());
+
+    const hour = Number(parts.find(p => p.type === 'hour')?.value || '0');
+    const weekday = parts.find(p => p.type === 'weekday')?.value || '';
+    const isWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(weekday);
+
+    isWorkHoursUK = isWeekday && hour >= 9 && hour < 17;
+}
+
+updateAvatarModeByUKTime();
+setInterval(updateAvatarModeByUKTime, 60 * 1000);
 
 function roundedRectPath(x, y, width, height, radius) {
     const safeRadius = Math.min(radius, width / 2, height / 2);
@@ -319,7 +338,10 @@ function drawBackdrop() {
 }
 
 function drawBody() {
-    ctx.fillStyle = '#1f2024';
+    const shirtPrimary = isWorkHoursUK ? '#1f2024' : '#2f4b6f';
+    const shirtSecondary = isWorkHoursUK ? '#2b2d32' : '#4f6f98';
+
+    ctx.fillStyle = shirtPrimary;
     ctx.beginPath();
     ctx.moveTo(132, 360);
     ctx.quadraticCurveTo(150, 286, 192, 278);
@@ -328,10 +350,21 @@ function drawBody() {
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = '#2b2d32';
+    ctx.fillStyle = shirtSecondary;
     ctx.beginPath();
     ctx.ellipse(200, 336, 78, 56, 0, 0, Math.PI * 2);
     ctx.fill();
+
+    // Off-hours: add a casual T-shirt collar detail.
+    if (!isWorkHoursUK) {
+        ctx.fillStyle = '#e8edf5';
+        ctx.beginPath();
+        ctx.moveTo(184, 281);
+        ctx.quadraticCurveTo(200, 295, 216, 281);
+        ctx.quadraticCurveTo(200, 275, 184, 281);
+        ctx.closePath();
+        ctx.fill();
+    }
 }
 
 function drawNeck() {
@@ -592,7 +625,7 @@ function drawAvatar() {
     drawBrows();
     drawEye(167, 172 + blinkPx * 0.06, -1);
     drawEye(233, 172 + blinkPx * 0.06, 1);
-    drawGlasses();
+    if (isWorkHoursUK) drawGlasses();
     drawNose();
     drawCheeks();
     drawMouth(mouthOpen);
