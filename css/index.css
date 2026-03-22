@@ -24,6 +24,15 @@ body.home-page {
     box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3);
 }
 
+.home-hero .glass-panel {
+    /* Match the six explore cards: clearer glass, less frosted blur. */
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(126, 214, 255, 0.04));
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-color: rgba(158, 197, 255, 0.2);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
 .home-hero {
     display: grid;
     grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
