@@ -25,10 +25,10 @@ body.home-page {
 }
 
 .home-hero .glass-panel {
-    /* Match the six explore cards: clearer glass, less frosted blur. */
+    /* Match the six explore cards exactly: no blur, pure transparent glass. */
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(126, 214, 255, 0.04));
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-color: rgba(158, 197, 255, 0.2);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
