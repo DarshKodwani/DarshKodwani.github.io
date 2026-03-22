@@ -783,50 +783,137 @@ function toggleVoiceInput() {
 // VOICE: Speech Synthesis (output)
 // ============================================================
 let currentUtterance = null;
+let speechUnlocked = false;
+let speechCleanupTimer = null;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+function setSpeakingUI(active) {
+    const avatar = document.getElementById('avatarContainer');
+    const stopBtn = document.getElementById('stopBtn');
+    if (active) {
+        avatar.classList.add('speaking');
+        stopBtn.classList.add('visible');
+        startAvatarAnim();
+    } else {
+        avatar.classList.remove('speaking');
+        stopBtn.classList.remove('visible');
+        stopAvatarAnim();
+    }
+}
+
+function unlockSpeechOnGesture() {
+    if (speechUnlocked || !window.speechSynthesis) return;
+    speechUnlocked = true;
+    const primer = new SpeechSynthesisUtterance(' ');
+    primer.volume = 0;
+    primer.rate = 1;
+    primer.pitch = 1;
+    try {
+        // Prime iOS Safari audio session so later async speak calls are audible.
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(primer);
+    } catch (_) {
+        // No-op: some browsers may reject the primer utterance.
+    }
+}
+
+function splitSpeechChunks(text) {
+    const normalized = (text || '').replace(/\s+/g, ' ').trim();
+    if (!normalized) return [];
+    if (!isIOS || normalized.length < 220) return [normalized];
+
+    const sentences = normalized.match(/[^.!?]+[.!?]*/g) || [normalized];
+    const chunks = [];
+    let current = '';
+
+    for (const sentence of sentences) {
+        const candidate = current ? `${current} ${sentence}` : sentence;
+        if (candidate.length > 220 && current) {
+            chunks.push(current.trim());
+            current = sentence;
+        } else {
+            current = candidate;
+        }
+    }
+    if (current.trim()) chunks.push(current.trim());
+
+    return chunks;
+}
 
 function speakText(text) {
     const toggle = document.getElementById('voiceToggle');
     if (!toggle.checked || !window.speechSynthesis) return;
 
+    unlockSpeechOnGesture();
     window.speechSynthesis.cancel();
+    if (speechCleanupTimer) {
+        clearTimeout(speechCleanupTimer);
+        speechCleanupTimer = null;
+    }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    const chunks = splitSpeechChunks(text);
+    if (!chunks.length) return;
+
+    setSpeakingUI(true);
+
+    // Failsafe cleanup in case Safari drops speech events.
+    const maxSpeechMs = Math.min(45000, 3000 + text.length * 55);
+    speechCleanupTimer = setTimeout(() => {
+        currentUtterance = null;
+        setSpeakingUI(false);
+    }, maxSpeechMs);
 
     const voices = window.speechSynthesis.getVoices();
     const preferred = voices.find(v => v.name.includes('Google UK English Male'))
         || voices.find(v => v.name.includes('Daniel'))
         || voices.find(v => v.lang.startsWith('en') && v.localService);
-    if (preferred) utterance.voice = preferred;
 
-    utterance.onstart = () => {
-        document.getElementById('avatarContainer').classList.add('speaking');
-        document.getElementById('stopBtn').classList.add('visible');
-        startAvatarAnim();
-    };
-    utterance.onend = () => {
-        document.getElementById('avatarContainer').classList.remove('speaking');
-        document.getElementById('stopBtn').classList.remove('visible');
-        stopAvatarAnim();
-        currentUtterance = null;
-    };
-    utterance.onerror = () => {
-        document.getElementById('avatarContainer').classList.remove('speaking');
-        document.getElementById('stopBtn').classList.remove('visible');
-        stopAvatarAnim();
-        currentUtterance = null;
-    };
+    let remainingChunks = chunks.length;
+    chunks.forEach((chunk, index) => {
+        const utterance = new SpeechSynthesisUtterance(chunk);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        if (preferred) utterance.voice = preferred;
 
-    currentUtterance = utterance;
-    window.speechSynthesis.speak(utterance);
+        utterance.onend = () => {
+            remainingChunks -= 1;
+            if (remainingChunks <= 0) {
+                if (speechCleanupTimer) {
+                    clearTimeout(speechCleanupTimer);
+                    speechCleanupTimer = null;
+                }
+                setSpeakingUI(false);
+                currentUtterance = null;
+            }
+        };
+
+        utterance.onerror = () => {
+            if (speechCleanupTimer) {
+                clearTimeout(speechCleanupTimer);
+                speechCleanupTimer = null;
+            }
+            setSpeakingUI(false);
+            currentUtterance = null;
+        };
+
+        if (index === chunks.length - 1) currentUtterance = utterance;
+        window.speechSynthesis.speak(utterance);
+    });
+
+    // iOS occasionally queues speech but does not start until resume is called.
+    if (isIOS && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+    }
 }
 
 function stopSpeaking() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
-    document.getElementById('avatarContainer').classList.remove('speaking');
-    document.getElementById('stopBtn').classList.remove('visible');
-    stopAvatarAnim();
+    if (speechCleanupTimer) {
+        clearTimeout(speechCleanupTimer);
+        speechCleanupTimer = null;
+    }
+    setSpeakingUI(false);
     currentUtterance = null;
 }
 
@@ -943,6 +1030,11 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.style.height = 'auto';
         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     });
+
+    // Unlock speech audio on first touch/click for Safari/iOS reliability.
+    document.addEventListener('touchend', unlockSpeechOnGesture, { once: true, passive: true });
+    document.addEventListener('click', unlockSpeechOnGesture, { once: true, passive: true });
+
     updateAccessUI();
     // Fade in the initial response
     setTimeout(() => {
