@@ -240,101 +240,132 @@ function roundedRectPath(x, y, width, height, radius) {
 }
 
 function drawBackdrop() {
-    const backdrop = ctx.createRadialGradient(200, 145, 30, 200, 220, 245);
-    backdrop.addColorStop(0, '#2d5562');
-    backdrop.addColorStop(0.55, '#1f3947');
-    backdrop.addColorStop(1, '#11212b');
-    ctx.fillStyle = backdrop;
-    ctx.fillRect(0, 0, S, S);
+    if (isWorkHoursUK) {
+        // Office mode: light palette, monitors and flowing numbers
+        const officeBg = ctx.createLinearGradient(0, 0, 0, S);
+        officeBg.addColorStop(0, '#e9f1ff');
+        officeBg.addColorStop(0.55, '#cfe0f6');
+        officeBg.addColorStop(1, '#b8d0eb');
+        ctx.fillStyle = officeBg;
+        ctx.fillRect(0, 0, S, S);
 
-    // Subtle chalkboard texture
-    ctx.fillStyle = 'rgba(12, 28, 35, 0.18)';
-    for (let i = 0; i < 30; i++) {
-        const y = 20 + i * 12;
-        ctx.fillRect(0, y, S, 1);
-    }
+        // Subtle wall pattern
+        ctx.strokeStyle = 'rgba(106, 136, 175, 0.18)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 18; i++) {
+            const y = 20 + i * 16;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(S, y);
+            ctx.stroke();
+        }
 
-    ctx.fillStyle = 'rgba(236, 197, 93, 0.16)';
-    for (let index = 0; index < 18; index++) {
-        const x = 22 + ((index * 43) % 360);
-        const y = 34 + ((index * 61) % 150);
-        ctx.beginPath();
-        ctx.arc(x, y, index % 3 === 0 ? 2.2 : 1.2, 0, Math.PI * 2);
+        // Desk panel
+        ctx.fillStyle = 'rgba(108, 138, 172, 0.38)';
+        ctx.fillRect(0, 288, S, 112);
+
+        // Left monitor
+        ctx.fillStyle = '#2d3a4c';
+        roundedRectPath(24, 130, 126, 92, 8);
         ctx.fill();
-    }
-
-    ctx.strokeStyle = 'rgba(230, 188, 82, 0.22)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(98, 82, 23, 0.15, Math.PI * 1.75);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(304, 74, 18, 0.4, Math.PI * 1.95);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(126, 222, 211, 0.18)';
-    roundedRectPath(250, 118, 98, 80, 10);
-    ctx.stroke();
-    roundedRectPath(262, 208, 88, 62, 10);
-    ctx.stroke();
-
-    // Astrophysics equations and symbols
-    ctx.font = '12px "SF Mono", Menlo, monospace';
-    ctx.fillStyle = 'rgba(236, 197, 93, 0.35)';
-    ctx.fillText('G_mn + L g_mn = 8piG T_mn', 18, 92);
-    ctx.fillText('rho_c = 3H^2 / (8piG)', 18, 114);
-    ctx.fillText('ds^2 = -dt^2 + a(t)^2 dx^2', 18, 136);
-    ctx.fillText('P(k) = A_s k^(n_s-1)', 18, 158);
-    ctx.fillText('R_mu_nu - 1/2 R g_mu_nu', 18, 180);
-
-    ctx.fillStyle = 'rgba(126, 222, 211, 0.36)';
-    ctx.fillText('Omega_m + Omega_L = 1', 266, 137);
-    ctx.fillText('del^2 Phi = 4piG rho', 266, 220);
-    ctx.fillText('H(z)^2 = H0^2 E(z)^2', 266, 242);
-
-    // Tiny constellation map
-    const stars = [
-        [285, 150], [298, 142], [312, 146], [322, 158], [315, 172], [300, 175], [287, 165]
-    ];
-    ctx.strokeStyle = 'rgba(126, 222, 211, 0.35)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(stars[0][0], stars[0][1]);
-    for (let i = 1; i < stars.length; i++) {
-        ctx.lineTo(stars[i][0], stars[i][1]);
-    }
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(236, 197, 93, 0.45)';
-    stars.forEach(([x, y]) => {
-        ctx.beginPath();
-        ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = '#89d6ff';
+        roundedRectPath(32, 138, 110, 76, 6);
         ctx.fill();
-    });
 
-    // Bottom-left lab flasks to echo the portrait style
-    ctx.strokeStyle = 'rgba(236, 197, 93, 0.25)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(38, 298);
-    ctx.lineTo(38, 266);
-    ctx.lineTo(50, 266);
-    ctx.lineTo(50, 298);
-    ctx.lineTo(62, 324);
-    ctx.lineTo(26, 324);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(246, 142, 70, 0.28)';
-    ctx.fillRect(30, 307, 28, 12);
+        // Right monitor
+        ctx.fillStyle = '#2d3a4c';
+        roundedRectPath(252, 120, 124, 92, 8);
+        ctx.fill();
+        ctx.fillStyle = '#8be8de';
+        roundedRectPath(260, 128, 108, 76, 6);
+        ctx.fill();
 
-    ctx.beginPath();
-    ctx.moveTo(86, 322);
-    ctx.lineTo(97, 288);
-    ctx.lineTo(109, 322);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fillStyle = 'rgba(126, 222, 211, 0.22)';
-    ctx.fillRect(92, 309, 12, 10);
+        // Monitor graph strokes
+        ctx.strokeStyle = 'rgba(19, 52, 83, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(38, 196);
+        ctx.lineTo(58, 172);
+        ctx.lineTo(78, 182);
+        ctx.lineTo(102, 158);
+        ctx.lineTo(128, 170);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(270, 189);
+        ctx.lineTo(294, 170);
+        ctx.lineTo(312, 178);
+        ctx.lineTo(338, 156);
+        ctx.lineTo(360, 166);
+        ctx.stroke();
+
+        // Floating numbers
+        ctx.font = '12px "SF Mono", Menlo, monospace';
+        ctx.fillStyle = 'rgba(26, 63, 99, 0.55)';
+        ctx.fillText('10110101', 20, 70);
+        ctx.fillText('0.982  1.230  0.441', 18, 92);
+        ctx.fillText('p(y|x) = sigma(Wx+b)', 18, 114);
+        ctx.fillText('loss = sum (y - y_hat)^2', 232, 86);
+        ctx.fillText('A = U Sigma V^T', 250, 232);
+        ctx.fillText('epoch: 0142', 280, 254);
+    } else {
+        // Chill mode: darker dreamy palette, telescope + equations
+        const chillBg = ctx.createRadialGradient(200, 130, 36, 200, 215, 260);
+        chillBg.addColorStop(0, '#374a7a');
+        chillBg.addColorStop(0.55, '#1f2f52');
+        chillBg.addColorStop(1, '#121b33');
+        ctx.fillStyle = chillBg;
+        ctx.fillRect(0, 0, S, S);
+
+        // Dreamy nebula blobs
+        ctx.fillStyle = 'rgba(138, 110, 208, 0.16)';
+        ctx.beginPath();
+        ctx.ellipse(70, 86, 54, 26, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(324, 78, 48, 24, 0.3, 0, Math.PI * 2);
+        ctx.ellipse(286, 236, 44, 22, -0.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Stars
+        ctx.fillStyle = 'rgba(242, 216, 146, 0.48)';
+        for (let i = 0; i < 28; i++) {
+            const x = 18 + ((i * 47) % 364);
+            const y = 26 + ((i * 63) % 202);
+            ctx.beginPath();
+            ctx.arc(x, y, i % 5 === 0 ? 2 : 1.1, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Telescope silhouette
+        ctx.fillStyle = 'rgba(46, 58, 87, 0.88)';
+        ctx.beginPath();
+        ctx.moveTo(58, 286);
+        ctx.lineTo(138, 236);
+        ctx.lineTo(149, 252);
+        ctx.lineTo(70, 302);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(108, 254, 8, 48);
+        ctx.fillRect(84, 278, 8, 44);
+        ctx.fillRect(132, 276, 8, 44);
+
+        // Equation board style
+        ctx.strokeStyle = 'rgba(126, 222, 211, 0.2)';
+        ctx.lineWidth = 2;
+        roundedRectPath(236, 124, 142, 120, 10);
+        ctx.stroke();
+
+        ctx.font = '12px "SF Mono", Menlo, monospace';
+        ctx.fillStyle = 'rgba(238, 203, 118, 0.45)';
+        ctx.fillText('G_mn + L g_mn = 8piG T_mn', 18, 86);
+        ctx.fillText('rho_c = 3H^2 / (8piG)', 18, 108);
+        ctx.fillText('ds^2 = -dt^2 + a(t)^2 dx^2', 18, 130);
+        ctx.fillText('H(z)^2 = H0^2 E(z)^2', 18, 152);
+
+        ctx.fillStyle = 'rgba(126, 222, 211, 0.38)';
+        ctx.fillText('Omega_m + Omega_L = 1', 244, 152);
+        ctx.fillText('del^2 Phi = 4piG rho', 244, 174);
+        ctx.fillText('P(k) = A_s k^(n_s-1)', 244, 196);
+        ctx.fillText('R_mu_nu - 1/2 R g_mu_nu', 244, 218);
+    }
 }
 
 function drawBody() {
@@ -498,39 +529,6 @@ function drawGlasses() {
     ctx.fill();
 }
 
-function drawCasualHat() {
-    // Soft beanie style for off-hours relaxed look
-    ctx.fillStyle = '#3d526e';
-    ctx.beginPath();
-    ctx.moveTo(132, 132);
-    ctx.quadraticCurveTo(142, 84, 200, 76);
-    ctx.quadraticCurveTo(258, 84, 268, 132);
-    ctx.quadraticCurveTo(248, 116, 226, 112);
-    ctx.quadraticCurveTo(200, 108, 174, 112);
-    ctx.quadraticCurveTo(152, 116, 132, 132);
-    ctx.closePath();
-    ctx.fill();
-
-    // Folded rim
-    ctx.fillStyle = '#2d3e54';
-    ctx.beginPath();
-    ctx.moveTo(130, 132);
-    ctx.quadraticCurveTo(200, 114, 270, 132);
-    ctx.quadraticCurveTo(262, 143, 248, 146);
-    ctx.quadraticCurveTo(200, 138, 152, 146);
-    ctx.quadraticCurveTo(138, 143, 130, 132);
-    ctx.closePath();
-    ctx.fill();
-
-    // Tiny highlight for fabric depth
-    ctx.strokeStyle = 'rgba(205, 225, 255, 0.16)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(156, 102);
-    ctx.quadraticCurveTo(200, 90, 244, 102);
-    ctx.stroke();
-}
-
 function drawNose() {
     ctx.strokeStyle = 'rgba(124, 73, 43, 0.55)';
     ctx.lineWidth = 3;
@@ -655,7 +653,6 @@ function drawAvatar() {
     drawEars();
     drawFaceShape();
     drawHair();
-    if (!isWorkHoursUK) drawCasualHat();
     drawBrows();
     drawEye(167, 172 + blinkPx * 0.06, -1);
     drawEye(233, 172 + blinkPx * 0.06, 1);
