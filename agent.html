@@ -192,17 +192,16 @@ let conversationHistory = [
 const canvas = document.getElementById('avatarCanvas');
 const ctx = canvas.getContext('2d');
 const avatarImg = new Image();
-avatarImg.crossOrigin = 'anonymous';
-// Use direct avatars URL (avoids github.com redirect which can break CORS)
-avatarImg.src = 'https://avatars.githubusercontent.com/DarshKodwani';
+// Local image — no CORS issues
+avatarImg.src = 'Images/avatar.png';
 
 const S = 400; // canvas internal resolution
 
 // Face landmark proportions (fraction of image height)
-const EYE_TOP = 0.36;
-const EYE_BOT = 0.46;
-const MOUTH_TOP = 0.63;
-const MOUTH_BOT = 0.73;
+const EYE_TOP = 0.35;
+const EYE_BOT = 0.47;
+const MOUTH_TOP = 0.62;
+const MOUTH_BOT = 0.74;
 
 // Animation state
 let isSpeakingAnim = false;
@@ -232,48 +231,50 @@ function stopAvatarAnim() {
 
 function scheduleHeadTilt() {
     if (!isSpeakingAnim) return;
-    headTiltTarget = (Math.random() - 0.5) * 3;
-    setTimeout(scheduleHeadTilt, 700 + Math.random() * 1000);
+    headTiltTarget = (Math.random() - 0.5) * 5;
+    setTimeout(scheduleHeadTilt, 600 + Math.random() * 800);
 }
 
 function drawAvatar() {
     if (!imgReady) { requestAnimationFrame(drawAvatar); return; }
 
-    // Source image actual size
     const W = avatarImg.naturalWidth;
     const H = avatarImg.naturalHeight;
 
     // Smooth mouth amplitude
-    mouthAmp += (targetMouthAmp - mouthAmp) * 0.12;
+    mouthAmp += (targetMouthAmp - mouthAmp) * 0.15;
 
     // Vary mouth speed for natural feel
     if (isSpeakingAnim) {
-        mouthSpeed = 0.2 + Math.sin(mouthPhase * 0.27) * 0.08;
+        mouthSpeed = 0.18 + Math.sin(mouthPhase * 0.3) * 0.1;
         mouthPhase += mouthSpeed;
     }
-    const rawMouth = Math.abs(Math.sin(mouthPhase)) * 0.7
-                   + Math.abs(Math.sin(mouthPhase * 1.7)) * 0.3;
-    const mouthOpen = mouthAmp * rawMouth * 16;
+    // Composite of two sine waves for organic rhythm
+    const rawMouth = Math.abs(Math.sin(mouthPhase)) * 0.6
+                   + Math.abs(Math.sin(mouthPhase * 1.7)) * 0.25
+                   + Math.abs(Math.sin(mouthPhase * 0.5)) * 0.15;
+    // Much larger movement: 30px max mouth stretch on a 400px canvas
+    const mouthOpen = mouthAmp * rawMouth * 30;
 
     // Blink logic
     blinkTimer++;
-    if (blinkState === 0 && blinkTimer > 140) {
-        if (Math.random() < 0.015) { blinkState = 1; blinkTimer = 0; }
+    if (blinkState === 0 && blinkTimer > 100) {
+        if (Math.random() < 0.02) { blinkState = 1; blinkTimer = 0; }
     }
     if (blinkState === 1) {
-        blinkAmount = Math.min(blinkAmount + 0.3, 1);
+        blinkAmount = Math.min(blinkAmount + 0.35, 1);
         if (blinkAmount >= 1) blinkState = 2;
     } else if (blinkState === 2) {
-        blinkAmount = Math.max(blinkAmount - 0.25, 0);
+        blinkAmount = Math.max(blinkAmount - 0.2, 0);
         if (blinkAmount <= 0) { blinkState = 0; blinkTimer = 0; }
     }
-    const blinkPx = blinkAmount * 6;
+    const blinkPx = blinkAmount * 10;
 
     // Head tilt + bob
-    headTilt += (headTiltTarget - headTilt) * 0.03;
+    headTilt += (headTiltTarget - headTilt) * 0.05;
     headBob = isSpeakingAnim
-        ? Math.sin(mouthPhase * 0.35) * 2.5
-        : headBob * 0.95;
+        ? Math.sin(mouthPhase * 0.3) * 4
+        : headBob * 0.93;
 
     // --- Draw ---
     ctx.clearRect(0, 0, S, S);
@@ -289,60 +290,48 @@ function drawAvatar() {
     ctx.arc(S / 2, S / 2, S / 2 - 2, 0, Math.PI * 2);
     ctx.clip();
 
-    // Source regions (in image pixels)
+    // Source regions (image pixels)
     const sEyeTop = H * EYE_TOP;
     const sEyeBot = H * EYE_BOT;
     const sMTop   = H * MOUTH_TOP;
     const sMBot   = H * MOUTH_BOT;
-    const sEyeH   = sEyeBot - sEyeTop;
-    const sMidH   = sMTop - sEyeBot;
-    const sMouthH = sMBot - sMTop;
-    const sChinH  = H - sMBot;
 
-    // Destination regions (in canvas pixels)
+    // Destination regions (canvas pixels)
     const dEyeTop = S * EYE_TOP;
     const dEyeBot = S * EYE_BOT;
     const dMTop   = S * MOUTH_TOP;
     const dMBot   = S * MOUTH_BOT;
-    const dEyeH   = dEyeBot - dEyeTop;
-    const dMidH   = dMTop - dEyeBot;
-    const dMouthH = dMBot - dMTop;
-    const dChinH  = S - dMBot;
 
-    // 1) Above eyes — unchanged
-    ctx.drawImage(avatarImg, 0, 0, W, sEyeTop, 0, 0, S, dEyeTop);
-
-    // 2) Eye region — squish on blink
+    // 1) Forehead — static
     ctx.drawImage(avatarImg,
-        0, sEyeTop, W, sEyeH,
-        0, dEyeTop + blinkPx * 0.5, S, dEyeH - blinkPx);
+        0, 0, W, sEyeTop,
+        0, 0, S, dEyeTop);
 
-    // 3) Between eyes and mouth
+    // 2) Eyes — squish vertically on blink
     ctx.drawImage(avatarImg,
-        0, sEyeBot, W, sMidH,
-        0, dEyeBot - blinkPx * 0.3, S, dMidH + blinkPx * 0.3);
+        0, sEyeTop, W, sEyeBot - sEyeTop,
+        0, dEyeTop + blinkPx * 0.5, S, (dEyeBot - dEyeTop) - blinkPx);
 
-    // 4) Mouth region — stretch open
+    // 3) Nose / cheeks — bridge between eyes and mouth
     ctx.drawImage(avatarImg,
-        0, sMTop, W, sMouthH,
-        0, dMTop, S, dMouthH + mouthOpen);
+        0, sEyeBot, W, sMTop - sEyeBot,
+        0, dEyeBot - blinkPx * 0.3, S, (dMTop - dEyeBot) + blinkPx * 0.3);
 
-    // 5) Chin — shift down
+    // 4) Mouth strip — stretch vertically to open mouth
     ctx.drawImage(avatarImg,
-        0, sMBot, W, sChinH,
-        0, dMBot + mouthOpen, S, dChinH);
+        0, sMTop, W, sMBot - sMTop,
+        0, dMTop, S, (dMBot - dMTop) + mouthOpen);
+
+    // 5) Chin — push down by mouth amount
+    ctx.drawImage(avatarImg,
+        0, sMBot, W, H - sMBot,
+        0, dMBot + mouthOpen, S, S - dMBot);
 
     ctx.restore();
     requestAnimationFrame(drawAvatar);
 }
 
 avatarImg.onload = () => { imgReady = true; drawAvatar(); };
-avatarImg.onerror = () => {
-    // Fallback: try the redirect URL if direct fails
-    if (!avatarImg.src.includes('github.com/DarshKodwani')) {
-        avatarImg.src = 'https://github.com/DarshKodwani.png';
-    }
-};
 
 // ============================================================
 // VOICE: Speech Recognition (input)
