@@ -113,7 +113,70 @@ nav.site-nav {
     box-shadow: 0 10px 22px rgba(126, 214, 255, 0.2);
 }
 
-@media (max-width: 980px) {
+/* ── Hamburger toggle ─────────────────────────────── */
+.site-nav__toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 10;
+    margin-left: auto;
+}
+
+.site-nav__toggle span {
+    display: block;
+    width: 26px;
+    height: 2.5px;
+    background: var(--shell-ink-0);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.site-nav__toggle.is-open span:nth-child(1) {
+    transform: translateY(7.5px) rotate(45deg);
+}
+
+.site-nav__toggle.is-open span:nth-child(2) {
+    opacity: 0;
+}
+
+.site-nav__toggle.is-open span:nth-child(3) {
+    transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* ── Theme toggle ─────────────────────────────────── */
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--shell-border);
+    border-radius: 12px;
+    padding: 0.45rem 0.55rem;
+    cursor: pointer;
+    color: var(--shell-ink-1);
+    font-size: 1.05rem;
+    line-height: 1;
+    transition: background 0.22s ease, color 0.22s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+    background: rgba(126, 214, 255, 0.14);
+    color: #ffffff;
+}
+
+.theme-toggle .icon-sun  { display: none; }
+.theme-toggle .icon-moon { display: inline; }
+
+[data-theme="light"] .theme-toggle .icon-sun  { display: inline; }
+[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+/* ── Tablet ───────────────────────────────────────── */
+@media (max-width: 980px) and (min-width: 769px) {
     .site-nav {
         flex-direction: column;
         align-items: stretch;
@@ -128,7 +191,8 @@ nav.site-nav {
     }
 }
 
-@media (max-width: 640px) {
+/* ── Mobile: hamburger ────────────────────────────── */
+@media (max-width: 768px) {
     .site-header {
         width: 94vw;
         margin-top: 0.75rem;
@@ -136,18 +200,81 @@ nav.site-nav {
 
     .site-nav {
         padding: 0.7rem;
+        flex-wrap: wrap;
+    }
+
+    .site-nav__brand {
+        flex: 1;
+        min-width: 0;
     }
 
     .site-nav__brand-text {
         font-size: 0.95rem;
     }
 
+    .site-nav__toggle {
+        display: flex;
+    }
+
     .site-nav__links {
+        display: none;
+        flex-basis: 100%;
+        flex-direction: column;
         gap: 0.25rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid var(--shell-border);
+        margin-top: 0.55rem;
+    }
+
+    .site-nav__links.is-open {
+        display: flex;
     }
 
     .site-nav__link {
-        font-size: 0.84rem;
-        padding: 0.48rem 0.68rem;
+        justify-content: flex-start;
+        width: 100%;
+        font-size: 0.92rem;
+        padding: 0.55rem 0.75rem;
     }
+}
+
+/* ── Light theme: nav overrides ───────────────────── */
+[data-theme="light"] nav.site-nav {
+    background: linear-gradient(135deg, rgba(255,255,255,0.82), rgba(240,245,255,0.72));
+    border-color: rgba(100,140,200,0.22);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .site-nav__brand { color: #1a2233; }
+[data-theme="light"] .site-nav__brand:hover { color: #000; }
+
+[data-theme="light"] .site-nav__brand-mark {
+    color: #fff;
+    background: linear-gradient(135deg, #0088cc, #22aa44);
+}
+
+[data-theme="light"] .site-nav__link {
+    color: #384860;
+}
+
+[data-theme="light"] .site-nav__link:hover {
+    color: #1a2233;
+    background: rgba(0,100,200,0.10);
+    border-color: rgba(0,100,200,0.15);
+}
+
+[data-theme="light"] .site-nav__link.is-active,
+[data-theme="light"] .site-nav__link[aria-current='page'] {
+    color: #fff;
+    background: linear-gradient(135deg, #0088cc, #22aa44);
+    border-color: rgba(34,170,68,0.4);
+}
+
+[data-theme="light"] .site-nav__toggle span {
+    background: #1a2233;
+}
+
+[data-theme="light"] .theme-toggle {
+    color: #384860;
+    border-color: rgba(100,140,200,0.22);
 }

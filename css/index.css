@@ -333,3 +333,48 @@ body.home-page {
         align-items: flex-start;
     }
 }
+
+/* ── Light theme: home page overrides ─────────────── */
+[data-theme="light"] .glass-panel {
+    background: linear-gradient(145deg, rgba(255,255,255,0.78), rgba(240,245,255,0.68));
+    border-color: rgba(100,140,200,0.18);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .eyebrow { color: #3b6ea5; }
+[data-theme="light"] .eyebrow::before { background: linear-gradient(to right, rgba(0,100,200,0.15), rgba(0,100,200,0.7)); }
+[data-theme="light"] .my_name { color: #1a2233; }
+[data-theme="light"] .hero-lead { color: #384860; }
+[data-theme="light"] .hero-pill {
+    color: #1a2233;
+    background: rgba(0,100,200,0.08);
+    border-color: rgba(100,140,200,0.25);
+}
+[data-theme="light"] .hero-btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, #0088cc, #22aa44);
+}
+[data-theme="light"] .hero-btn-secondary {
+    color: #1a2233;
+    background: rgba(0,80,160,0.06);
+    border-color: rgba(100,140,200,0.22);
+}
+[data-theme="light"] .summary-card,
+[data-theme="light"] .metric-card,
+[data-theme="light"] .explore-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.72), rgba(240,245,255,0.62));
+    border-color: rgba(100,140,200,0.18);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .summary-label,
+[data-theme="light"] .metric-label { color: #5c6f8a; }
+[data-theme="light"] .summary-value,
+[data-theme="light"] .metric-value { color: #1a2233; }
+[data-theme="light"] .explore-card { color: #1a2233; }
+[data-theme="light"] .explore-card:hover { color: #000; border-color: rgba(34,170,68,0.45); }
+[data-theme="light"] .explore-card h2 { color: #1a2233; }
+[data-theme="light"] .explore-card p { color: #384860; }
+[data-theme="light"] .explore-icon { background: linear-gradient(135deg, rgba(0,120,200,0.12), rgba(34,170,68,0.10)); color: #0077b6; }
+[data-theme="light"] .profile-caption { color: #384860; }
+[data-theme="light"] .footer-copy p { color: #384860; }
+[data-theme="light"] #lab_social_icon_footer a { color: #384860; }

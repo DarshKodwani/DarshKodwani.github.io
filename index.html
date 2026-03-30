@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- PAGE TITLE -->
+    <meta name="description" content="Dr Darsh Kodwani — astrophysicist, AI leader, educator, and consultant. Senior Data Science Manager at Microsoft with a DPhil in Astrophysics from Oxford.">
+    <meta property="og:title" content="Darsh Kodwani — Astrophysicist &amp; AI Leader">
+    <meta property="og:description" content="Personal website of Dr Darsh Kodwani. Explore research, teaching notes, consulting experience, media, and an interactive AI assistant.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.darshkodwani.com/">
+    <meta property="og:image" content="https://www.darshkodwani.com/Images/DK_new.jpg">
     <title>Darsh | Homepage</title>
-    <!-- Favicon -->
     <link rel="icon" type="image/" href="Images/favicon.ico" />
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
@@ -32,6 +36,8 @@
                 <span class="site-nav__brand-mark">DK</span>
                 <span class="site-nav__brand-text">Darsh Kodwani</span>
             </a>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="icon-moon">☾</span><span class="icon-sun">☀</span></button>
+            <button class="site-nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
             <div class="site-nav__links">
                 <a class="site-nav__link" href="index.html">Home</a>
                 <a class="site-nav__link" href="about_me.html">About</a>
@@ -45,7 +51,7 @@
     </header>
 
     <main class="home-shell">
-        <section class="home-hero">
+        <section class="home-hero reveal">
             <div class="hero-copy glass-panel">
                 <div class="eyebrow">Astrophysics x Machine Learning x Industry Impact</div>
                 <h1 class="my_name" id="my_name">Dr Darsh Kodwani</h1>
@@ -75,7 +81,7 @@
             </div>
 
             <div class="hero-profile glass-panel">
-                <img class="my_image" src="Images/DK_new.jpg" alt="Portrait of Dr Darsh Kodwani">
+                <img class="my_image" src="Images/DK_new.jpg" alt="Portrait of Dr Darsh Kodwani" loading="lazy">
                 <div class="profile-caption">From Oxford cosmology to enterprise AI systems.</div>
                 <div class="profile-metrics">
                     <div class="metric-card">
@@ -94,7 +100,7 @@
             </div>
         </section>
 
-        <section class="explore-grid">
+        <section class="explore-grid reveal">
             <a class="explore-card" href="about_me.html">
                 <span class="explore-icon"><i class="fa fa-globe"></i></span>
                 <h2>About</h2>
@@ -127,7 +133,7 @@
             </a>
         </section>
 
-        <section class="home-footer glass-panel" id="lab_social_icon_footer">
+        <section class="home-footer glass-panel reveal" id="lab_social_icon_footer">
             <div class="footer-copy">
                 <h3>Find me across research, technology, and public work.</h3>
                 <p>
@@ -144,6 +150,8 @@
         </section>
     </main>
 
+<!-- Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "YOUR_CF_TOKEN"}'></script>
 </body>
 
 </html>

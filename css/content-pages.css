@@ -606,3 +606,89 @@
         width: 100%;
     }
 }
+
+/* ── Light theme: content page overrides ──────────── */
+[data-theme="light"] .page-hero,
+[data-theme="light"] .page-panel,
+[data-theme="light"] .content-card,
+[data-theme="light"] .timeline-card,
+[data-theme="light"] .quote-card,
+[data-theme="light"] .embed-card,
+[data-theme="light"] .metric-strip,
+[data-theme="light"] .skill-card,
+[data-theme="light"] .logo-card,
+[data-theme="light"] .testimonial-card,
+[data-theme="light"] .course-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.82), rgba(240,245,255,0.72));
+    border-color: rgba(100,140,200,0.18);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+    backdrop-filter: blur(8px);
+}
+
+[data-theme="light"] .metric-item {
+    background: rgba(255,255,255,0.55);
+    border-color: rgba(100,140,200,0.15);
+}
+
+[data-theme="light"] .page-kicker,
+[data-theme="light"] .section-subtitle { color: #3b6ea5; }
+[data-theme="light"] .page-kicker::before { background: linear-gradient(to right, rgba(0,100,200,0.15), rgba(0,100,200,0.7)); }
+
+[data-theme="light"] .page-title { color: #1a2233; }
+[data-theme="light"] .page-lead,
+[data-theme="light"] .page-copy p,
+[data-theme="light"] .page-panel p,
+[data-theme="light"] .content-card p,
+[data-theme="light"] .timeline-card p,
+[data-theme="light"] .quote-card p,
+[data-theme="light"] .embed-card p,
+[data-theme="light"] .course-body p,
+[data-theme="light"] .testimonial-quote { color: #384860; }
+
+[data-theme="light"] .hero-badge,
+[data-theme="light"] .hero-chip {
+    background: rgba(0,80,160,0.06);
+    border-color: rgba(100,140,200,0.18);
+}
+
+[data-theme="light"] .hero-badge strong,
+[data-theme="light"] .hero-chip strong,
+[data-theme="light"] .metric-value,
+[data-theme="light"] .card-title,
+[data-theme="light"] .timeline-title,
+[data-theme="light"] .quote-name,
+[data-theme="light"] .embed-title,
+[data-theme="light"] .skill-name,
+[data-theme="light"] .logo-title,
+[data-theme="light"] .section-title,
+[data-theme="light"] .testimonial-name { color: #1a2233; }
+
+[data-theme="light"] .metric-label,
+[data-theme="light"] .card-meta,
+[data-theme="light"] .timeline-meta,
+[data-theme="light"] .quote-role,
+[data-theme="light"] .testimonial-role { color: #5c6f8a; }
+
+[data-theme="light"] .link-button {
+    color: #fff;
+    background: linear-gradient(135deg, #0088cc, #22aa44);
+    box-shadow: 0 8px 18px rgba(0,100,200,0.15);
+}
+
+[data-theme="light"] .link-button.secondary {
+    color: #1a2233;
+    background: rgba(0,80,160,0.06);
+    border-color: rgba(100,140,200,0.22);
+}
+
+[data-theme="light"] .page-separator {
+    background: linear-gradient(to right, transparent, rgba(100,140,200,0.4), transparent);
+}
+
+[data-theme="light"] .skill-bar {
+    background: rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .skill-bar > span {
+    background: linear-gradient(90deg, #0088cc, #22aa44);
+}
