@@ -652,6 +652,68 @@
 }
 .hiw-repo:hover { background: rgba(255, 255, 255, 0.12); }
 
+/* ===== Light theme overrides for "How this works" modal ===== */
+[data-theme="light"] .hiw-overlay {
+    background: rgba(15, 23, 42, 0.35);
+}
+[data-theme="light"] .hiw-modal {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #1a2233;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+}
+[data-theme="light"] body.slick-theme .hiw-modal h2,
+[data-theme="light"] .hiw-header h2 { color: #1a2233; }
+[data-theme="light"] .hiw-close { color: rgba(26, 34, 51, 0.55); }
+[data-theme="light"] .hiw-close:hover { color: #1a2233; }
+[data-theme="light"] body.slick-theme .hiw-modal p,
+[data-theme="light"] .hiw-intro { color: #384860; }
+[data-theme="light"] .hiw-explain { color: #384860; }
+[data-theme="light"] .hiw-explain code {
+    background: rgba(15, 23, 42, 0.08);
+    color: #1a2233;
+}
+[data-theme="light"] .hiw-tabs {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.12);
+}
+[data-theme="light"] .hiw-tab { color: #5c6f8a; }
+[data-theme="light"] .hiw-tab:hover { color: #1a2233; }
+[data-theme="light"] .hiw-tab.active { color: #fff; }
+[data-theme="light"] .hiw-pill {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #384860;
+}
+[data-theme="light"] .hiw-diagram {
+    background: rgba(15, 23, 42, 0.03);
+    border-color: rgba(15, 23, 42, 0.1);
+}
+[data-theme="light"] .hiw-node rect {
+    fill: rgba(15, 23, 42, 0.04);
+    stroke: rgba(15, 23, 42, 0.3);
+}
+[data-theme="light"] .hiw-node text { fill: #1a2233; }
+[data-theme="light"] .hiw-node text.hiw-sub { fill: rgba(26, 34, 51, 0.6); }
+[data-theme="light"] .hiw-node-cron rect {
+    fill: rgba(15, 23, 42, 0.02);
+    stroke: rgba(15, 23, 42, 0.3);
+}
+[data-theme="light"] .hiw-edge { stroke: #5c6f8a; }
+[data-theme="light"] .hiw-edge-dashed { stroke: rgba(92, 111, 138, 0.7); }
+[data-theme="light"] .hiw-edge-label { fill: rgba(26, 34, 51, 0.6); }
+[data-theme="light"] .hiw-footer { border-top-color: rgba(15, 23, 42, 0.1); }
+[data-theme="light"] .hiw-stack span {
+    background: rgba(15, 23, 42, 0.05);
+    color: #384860;
+}
+[data-theme="light"] .hiw-repo {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #1a2233;
+}
+[data-theme="light"] .hiw-repo:hover { background: rgba(15, 23, 42, 0.1); }
+
 @media (max-width: 600px) {
     .hiw-modal { padding: 1.1rem 1rem; }
     .hiw-header h2 { font-size: 1rem; }
