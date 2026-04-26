@@ -333,6 +333,13 @@
     line-height: 1;
 }
 
+/* Wordmark logos (e.g. Kyndryl) need to fit, not crop */
+.timeline-logo-contain {
+    object-fit: contain;
+    padding: 14px;
+    background: #fff;
+}
+
 .quote-card {
     display: flex;
     flex-direction: column;
