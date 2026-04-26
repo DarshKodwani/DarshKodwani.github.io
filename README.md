@@ -10,7 +10,6 @@ Source for [darshkodwani.com](https://darshkodwani.com), hosted on GitHub Pages.
 ├── about_me.html       # About page
 ├── research.html       # Research & publications
 ├── teaching.html       # Teaching & lectures
-├── consulting.html     # Consulting work
 ├── media.html          # Media appearances
 ├── agent.html          # AI assistant chat interface
 ├── css/                # Stylesheets
