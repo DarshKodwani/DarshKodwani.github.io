@@ -92,6 +92,10 @@
             <!-- Input bar -->
             <div class="input-bar" id="inputBar">
                 <div class="input-controls">
+                    <div class="mode-toggle" role="group" aria-label="Response mode">
+                        <button type="button" class="mode-btn active" data-mode="quick" onclick="setMode('quick')" title="Fast response from cached summary">Quick</button>
+                        <button type="button" class="mode-btn" data-mode="detailed" onclick="setMode('detailed')" title="Full response using live RAG + web search">Detailed</button>
+                    </div>
                     <div class="voice-toggle-inline">
                         <label class="toggle-label">
                             <input type="checkbox" id="voiceToggle" checked>
@@ -185,6 +189,24 @@ function relockPrivateMode() {
 let conversationHistory = [
     { role: 'assistant', content: "Hi! I'm Darsh's AI assistant. Ask me anything about his current work at Kyndryl, research, blogs, or career journey." }
 ];
+
+// ============================================================
+// RESPONSE MODE: 'quick' (cached summary) or 'detailed' (RAG + web search)
+// Persisted in sessionStorage so it survives within a session.
+// ============================================================
+const MODE_KEY = 'darsh.responseMode';
+let responseMode = sessionStorage.getItem(MODE_KEY) === 'detailed' ? 'detailed' : 'quick';
+
+function setMode(mode) {
+    responseMode = (mode === 'detailed') ? 'detailed' : 'quick';
+    sessionStorage.setItem(MODE_KEY, responseMode);
+    document.querySelectorAll('.mode-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.mode === responseMode);
+    });
+}
+
+// Apply persisted mode on load
+document.addEventListener('DOMContentLoaded', () => setMode(responseMode));
 
 // ============================================================
 // CANVAS PUPPET ANIMATION
@@ -974,6 +996,7 @@ async function sendMessage() {
             body: JSON.stringify({
                 messages: conversationHistory,
                 passcode: recruiterPasscode || undefined,
+                mode: responseMode,
             })
         });
 
