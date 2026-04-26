@@ -95,6 +95,9 @@
                     <div class="mode-toggle" role="group" aria-label="Response mode">
                         <button type="button" class="mode-btn active" data-mode="quick" onclick="setMode('quick')" title="Fast response from cached summary">Quick</button>
                         <button type="button" class="mode-btn" data-mode="detailed" onclick="setMode('detailed')" title="Full response using live RAG + web search">Detailed</button>
+                        <button type="button" class="mode-info-btn" onclick="openHowItWorks()" aria-label="How this works" title="How this works">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </button>
                     </div>
                     <div class="voice-toggle-inline">
                         <label class="toggle-label">
@@ -122,6 +125,191 @@
                     </div>
                 </div>
                 <p class="input-disclaimer">AI responses are based on Darsh's public profile and may not capture every detail.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         "How this works" modal — explains Quick vs Detailed pipelines
+         ============================================================ -->
+    <div class="hiw-overlay" id="hiwOverlay" hidden onclick="closeHowItWorksFromOverlay(event)">
+        <div class="hiw-modal" role="dialog" aria-modal="true" aria-labelledby="hiwTitle">
+            <div class="hiw-header">
+                <h2 id="hiwTitle">How this works</h2>
+                <button type="button" class="hiw-close" onclick="closeHowItWorks()" aria-label="Close">&times;</button>
+            </div>
+            <p class="hiw-intro">
+                You're talking to a multi-agent system I built. Two response modes &mdash; pick a tab to see how each one is wired up.
+            </p>
+            <div class="hiw-tabs" role="tablist">
+                <button type="button" class="hiw-tab active" data-tab="quick" role="tab" onclick="setHiwTab('quick')">Quick mode</button>
+                <button type="button" class="hiw-tab" data-tab="detailed" role="tab" onclick="setHiwTab('detailed')">Detailed mode</button>
+            </div>
+
+            <!-- ===== QUICK PANEL ===== -->
+            <div class="hiw-panel active" data-panel="quick" role="tabpanel">
+                <div class="hiw-meta">
+                    <span class="hiw-pill">~3 s</span>
+                    <span class="hiw-pill">1 LLM call</span>
+                    <span class="hiw-pill">pre-baked context</span>
+                    <span class="hiw-pill">low cost</span>
+                </div>
+                <div class="hiw-diagram">
+                    <svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quick mode architecture diagram">
+                        <defs>
+                            <marker id="hiwArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                                <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Nodes -->
+                        <g class="hiw-node hiw-node-user">
+                            <rect x="20" y="140" width="120" height="60" rx="10"/>
+                            <text x="80" y="167" text-anchor="middle">You</text>
+                            <text x="80" y="186" text-anchor="middle" class="hiw-sub">browser</text>
+                        </g>
+
+                        <g class="hiw-node hiw-node-worker">
+                            <rect x="200" y="140" width="160" height="60" rx="10"/>
+                            <text x="280" y="167" text-anchor="middle">Cloudflare Worker</text>
+                            <text x="280" y="186" text-anchor="middle" class="hiw-sub">orchestrator</text>
+                        </g>
+
+                        <g class="hiw-node hiw-node-data">
+                            <rect x="220" y="40" width="160" height="60" rx="10"/>
+                            <text x="300" y="67" text-anchor="middle">summary.md</text>
+                            <text x="300" y="86" text-anchor="middle" class="hiw-sub">pre-baked context</text>
+                        </g>
+
+                        <g class="hiw-node hiw-node-llm">
+                            <rect x="420" y="140" width="160" height="60" rx="10"/>
+                            <text x="500" y="167" text-anchor="middle">GPT-4o-mini</text>
+                            <text x="500" y="186" text-anchor="middle" class="hiw-sub">single call</text>
+                        </g>
+
+                        <g class="hiw-node hiw-node-answer">
+                            <rect x="610" y="140" width="90" height="60" rx="10"/>
+                            <text x="655" y="167" text-anchor="middle">Answer</text>
+                            <text x="655" y="186" text-anchor="middle" class="hiw-sub">~3 s</text>
+                        </g>
+
+                        <g class="hiw-node hiw-node-cron">
+                            <rect x="200" y="270" width="280" height="60" rx="10" stroke-dasharray="5 4"/>
+                            <text x="340" y="297" text-anchor="middle">GitHub Actions &mdash; weekly cron</text>
+                            <text x="340" y="316" text-anchor="middle" class="hiw-sub">runs full RAG + web pipeline · refreshes summary.md</text>
+                        </g>
+
+                        <!-- Edges -->
+                        <line class="hiw-edge" x1="140" y1="170" x2="200" y2="170" marker-end="url(#hiwArrow)"/>
+                        <line class="hiw-edge" x1="300" y1="100" x2="280" y2="140" marker-end="url(#hiwArrow)"/>
+                        <line class="hiw-edge" x1="360" y1="170" x2="420" y2="170" marker-end="url(#hiwArrow)"/>
+                        <line class="hiw-edge" x1="580" y1="170" x2="610" y2="170" marker-end="url(#hiwArrow)"/>
+                        <line class="hiw-edge hiw-edge-dashed" x1="340" y1="270" x2="300" y2="100" marker-end="url(#hiwArrow)"/>
+
+                        <text x="170" y="160" class="hiw-edge-label">ask</text>
+                        <text x="310" y="125" class="hiw-edge-label">inject</text>
+                        <text x="390" y="160" class="hiw-edge-label">prompt</text>
+                        <text x="595" y="160" class="hiw-edge-label">reply</text>
+                        <text x="365" y="200" class="hiw-edge-label hiw-edge-label-side">refreshes weekly</text>
+                    </svg>
+                </div>
+                <p class="hiw-explain">
+                    Quick mode skips live retrieval. The Worker injects a pre-baked Markdown summary of my CV + public profile into a single GPT-4o-mini call. That summary is regenerated every Monday at 06:00 UTC by a GitHub Action that runs the full RAG + web-search pipeline once and commits the result back to the repo.
+                </p>
+            </div>
+
+            <!-- ===== DETAILED PANEL ===== -->
+            <div class="hiw-panel" data-panel="detailed" role="tabpanel">
+                <div class="hiw-meta">
+                    <span class="hiw-pill">~10 s</span>
+                    <span class="hiw-pill">multi-agent</span>
+                    <span class="hiw-pill">parallel sub-agents</span>
+                    <span class="hiw-pill">live retrieval</span>
+                </div>
+                <div class="hiw-diagram">
+                    <svg viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Detailed mode architecture diagram">
+                        <defs>
+                            <marker id="hiwArrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                                <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+                            </marker>
+                        </defs>
+
+                        <!-- User -->
+                        <g class="hiw-node hiw-node-user">
+                            <rect x="280" y="20" width="160" height="60" rx="10"/>
+                            <text x="360" y="47" text-anchor="middle">You</text>
+                            <text x="360" y="66" text-anchor="middle" class="hiw-sub">browser</text>
+                        </g>
+
+                        <!-- Orchestrator (top) -->
+                        <g class="hiw-node hiw-node-worker">
+                            <rect x="260" y="120" width="200" height="60" rx="10"/>
+                            <text x="360" y="147" text-anchor="middle">Orchestrator</text>
+                            <text x="360" y="166" text-anchor="middle" class="hiw-sub">GPT-4o-mini · fans out</text>
+                        </g>
+
+                        <!-- Sub-agents -->
+                        <g class="hiw-node hiw-node-agent">
+                            <rect x="60" y="220" width="220" height="60" rx="10"/>
+                            <text x="170" y="247" text-anchor="middle">RAG Agent</text>
+                            <text x="170" y="266" text-anchor="middle" class="hiw-sub">embed query · returns raw chunks</text>
+                        </g>
+                        <g class="hiw-node hiw-node-agent">
+                            <rect x="440" y="220" width="220" height="60" rx="10"/>
+                            <text x="550" y="247" text-anchor="middle">Web Search Agent</text>
+                            <text x="550" y="266" text-anchor="middle" class="hiw-sub">parallel targeted + general queries</text>
+                        </g>
+
+                        <!-- Data sources -->
+                        <g class="hiw-node hiw-node-data">
+                            <rect x="60" y="320" width="220" height="60" rx="10"/>
+                            <text x="170" y="347" text-anchor="middle">Cloudflare Vectorize</text>
+                            <text x="170" y="366" text-anchor="middle" class="hiw-sub">CV + blogs · topK=20 · cosine</text>
+                        </g>
+                        <g class="hiw-node hiw-node-data">
+                            <rect x="440" y="320" width="220" height="60" rx="10"/>
+                            <text x="550" y="347" text-anchor="middle">Tavily API</text>
+                            <text x="550" y="366" text-anchor="middle" class="hiw-sub">LinkedIn · ArXiv · Medium · web</text>
+                        </g>
+
+                        <!-- Fuse + answer -->
+                        <g class="hiw-node hiw-node-worker">
+                            <rect x="240" y="400" width="240" height="50" rx="10"/>
+                            <text x="360" y="430" text-anchor="middle">Orchestrator fuses &amp; answers</text>
+                        </g>
+
+                        <!-- Edges -->
+                        <line class="hiw-edge" x1="360" y1="80" x2="360" y2="120" marker-end="url(#hiwArrow2)"/>
+                        <line class="hiw-edge" x1="320" y1="180" x2="200" y2="220" marker-end="url(#hiwArrow2)"/>
+                        <line class="hiw-edge" x1="400" y1="180" x2="520" y2="220" marker-end="url(#hiwArrow2)"/>
+                        <line class="hiw-edge" x1="170" y1="280" x2="170" y2="320" marker-end="url(#hiwArrow2)"/>
+                        <line class="hiw-edge" x1="550" y1="280" x2="550" y2="320" marker-end="url(#hiwArrow2)"/>
+                        <line class="hiw-edge" x1="200" y1="380" x2="320" y2="400" marker-end="url(#hiwArrow2)"/>
+                        <line class="hiw-edge" x1="520" y1="380" x2="400" y2="400" marker-end="url(#hiwArrow2)"/>
+
+                        <text x="240" y="210" class="hiw-edge-label">fan out</text>
+                        <text x="450" y="210" class="hiw-edge-label">in parallel</text>
+                        <text x="225" y="395" class="hiw-edge-label">raw chunks</text>
+                        <text x="445" y="395" class="hiw-edge-label">web results</text>
+                    </svg>
+                </div>
+                <p class="hiw-explain">
+                    Detailed mode runs two sub-agents in parallel. The RAG agent embeds your question with <code>text-embedding-3-small</code>, queries a Cloudflare Vectorize index of my CV + blog posts, and returns <em>raw</em> chunks (no intermediate summarisation, so the orchestrator never loses signal). The web agent fires two Tavily searches simultaneously &mdash; one targeted at LinkedIn / ArXiv / Medium, one general. The orchestrator fuses both, prefers RAG when sources disagree, and writes the final answer.
+                </p>
+            </div>
+
+            <div class="hiw-footer">
+                <div class="hiw-stack">
+                    <span>Cloudflare Workers</span>
+                    <span>Vectorize</span>
+                    <span>OpenAI</span>
+                    <span>Tavily</span>
+                    <span>GitHub Actions</span>
+                </div>
+                <a class="hiw-repo" href="https://github.com/DarshKodwani/darsh-ai-worker" target="_blank" rel="noopener">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.27-5.24-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.18-1.48 3.14-1.17 3.14-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.4-2.69 5.36-5.25 5.65.41.36.78 1.06.78 2.13v3.16c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+                    Source code on GitHub
+                </a>
             </div>
         </div>
     </div>
@@ -207,6 +395,44 @@ function setMode(mode) {
 
 // Apply persisted mode on load
 document.addEventListener('DOMContentLoaded', () => setMode(responseMode));
+
+// ============================================================
+// "How this works" modal
+// ============================================================
+function setHiwTab(tab) {
+    document.querySelectorAll('.hiw-tab').forEach((el) => {
+        el.classList.toggle('active', el.dataset.tab === tab);
+    });
+    document.querySelectorAll('.hiw-panel').forEach((el) => {
+        el.classList.toggle('active', el.dataset.panel === tab);
+    });
+}
+
+function openHowItWorks() {
+    const overlay = document.getElementById('hiwOverlay');
+    if (!overlay) return;
+    // Default the active tab to whichever response mode the user is currently in
+    setHiwTab(responseMode === 'detailed' ? 'detailed' : 'quick');
+    overlay.hidden = false;
+    requestAnimationFrame(() => overlay.classList.add('open'));
+    document.addEventListener('keydown', hiwKeyHandler);
+}
+
+function closeHowItWorks() {
+    const overlay = document.getElementById('hiwOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.removeEventListener('keydown', hiwKeyHandler);
+    setTimeout(() => { overlay.hidden = true; }, 180);
+}
+
+function closeHowItWorksFromOverlay(event) {
+    if (event.target && event.target.id === 'hiwOverlay') closeHowItWorks();
+}
+
+function hiwKeyHandler(event) {
+    if (event.key === 'Escape') closeHowItWorks();
+}
 
 // ============================================================
 // CANVAS PUPPET ANIMATION

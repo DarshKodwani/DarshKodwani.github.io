@@ -428,6 +428,235 @@
     color: #fff;
 }
 
+/* "How this works" info button (lives inside the mode-toggle pill) */
+.mode-info-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.45);
+    padding: 4px 6px;
+    margin-left: 2px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.mode-info-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== "How this works" modal ===== */
+.hiw-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 16, 0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+.hiw-overlay.open { opacity: 1; }
+.hiw-overlay[hidden] { display: none; }
+
+.hiw-modal {
+    width: min(820px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem 1.75rem 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    transform: translateY(8px);
+    transition: transform 0.18s ease;
+}
+.hiw-overlay.open .hiw-modal { transform: translateY(0); }
+
+.hiw-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+.hiw-header h2 {
+    font-size: 1.15rem;
+    margin: 0;
+    color: #fff;
+}
+.hiw-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+}
+.hiw-close:hover { color: #fff; }
+
+.hiw-intro {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0 0 1rem;
+}
+
+.hiw-tabs {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 3px;
+    margin-bottom: 1rem;
+}
+.hiw-tab {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    padding: 5px 14px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.hiw-tab:hover { color: rgba(255, 255, 255, 0.85); }
+.hiw-tab.active {
+    background: rgba(37, 99, 235, 0.85);
+    color: #fff;
+}
+
+.hiw-panel { display: none; }
+.hiw-panel.active { display: block; animation: hiwFade 0.25s ease; }
+@keyframes hiwFade {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.hiw-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+.hiw-pill {
+    font-size: 0.7rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.hiw-diagram {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+.hiw-diagram svg { width: 100%; height: auto; display: block; }
+
+/* SVG node styling */
+.hiw-node rect {
+    fill: rgba(255, 255, 255, 0.04);
+    stroke: rgba(255, 255, 255, 0.25);
+    stroke-width: 1.2;
+}
+.hiw-node text {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    fill: #fff;
+}
+.hiw-node text.hiw-sub {
+    font-size: 10.5px;
+    font-weight: 400;
+    fill: rgba(255, 255, 255, 0.55);
+}
+.hiw-node-user rect    { stroke: rgba(148, 163, 184, 0.55); }
+.hiw-node-worker rect  { stroke: rgba(37, 99, 235, 0.85); fill: rgba(37, 99, 235, 0.1); }
+.hiw-node-llm rect     { stroke: rgba(251, 191, 36, 0.8);  fill: rgba(251, 191, 36, 0.08); }
+.hiw-node-data rect    { stroke: rgba(45, 212, 191, 0.8);  fill: rgba(45, 212, 191, 0.08); }
+.hiw-node-agent rect   { stroke: rgba(167, 139, 250, 0.8); fill: rgba(167, 139, 250, 0.08); }
+.hiw-node-answer rect  { stroke: rgba(34, 197, 94, 0.85);  fill: rgba(34, 197, 94, 0.1); }
+.hiw-node-cron rect    { fill: rgba(255, 255, 255, 0.02); stroke: rgba(255, 255, 255, 0.3); }
+
+.hiw-edge {
+    stroke: #94a3b8;
+    stroke-width: 1.4;
+    fill: none;
+}
+.hiw-edge-dashed { stroke-dasharray: 5 4; stroke: rgba(148, 163, 184, 0.7); }
+.hiw-edge-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 10px;
+    fill: rgba(255, 255, 255, 0.5);
+}
+.hiw-edge-label-side { font-style: italic; }
+
+.hiw-explain {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.78);
+    margin: 0;
+}
+.hiw-explain code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.hiw-footer {
+    margin-top: 1.1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.hiw-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+.hiw-stack span {
+    font-size: 0.68rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+}
+.hiw-repo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.15s ease;
+}
+.hiw-repo:hover { background: rgba(255, 255, 255, 0.12); }
+
+@media (max-width: 600px) {
+    .hiw-modal { padding: 1.1rem 1rem; }
+    .hiw-header h2 { font-size: 1rem; }
+}
+
 .input-wrapper {
     display: flex;
     align-items: flex-end;
