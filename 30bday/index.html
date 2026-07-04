@@ -1330,7 +1330,7 @@
     var fig = document.createElement("figure");
     fig.className = "shot";
     var img = document.createElement("img");
-    img.src = path + "?v=" + Date.now();
+    img.src = path.indexOf("data:") === 0 ? path : path + "?v=" + Date.now();
     img.alt = "";
     fig.appendChild(img);
     var cap = document.createElement("figcaption");
@@ -1368,26 +1368,59 @@
 
   gateBtn.onclick = function () { gateFile.click(); };
 
+  /* Tonight's photo, two ways:
+     - with an upload server (the old home-wifi setup), it's saved there;
+     - on static hosting (the real website), it lives on her device —
+       saved in this browser, no server anywhere.                       */
+  var serverMode = false;
+  var LS_PHOTO = "30bday-tonight-photo";
+
+  function localPhoto() {
+    try { return localStorage.getItem(LS_PHOTO); } catch (e) { return null; }
+  }
+
+  function shrinkImage(file, cb) {
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function () {
+      var MAX = 1600;
+      var k = Math.min(1, MAX / Math.max(img.width, img.height));
+      var cv = document.createElement("canvas");
+      cv.width = Math.round(img.width * k);
+      cv.height = Math.round(img.height * k);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url);
+      cb(cv.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+
+  function photoIsIn() {
+    gateNote.innerHTML =
+      "Every small light in this dark is a whole galaxy — and one of " +
+      "them is ours. Tonight’s photograph is already inside the story.";
+    showEnter("Come home ✧");
+    if (!document.querySelector(".gate-alt")) {
+      var alt = document.createElement("button");
+      alt.className = "gate-alt";
+      alt.type = "button";
+      alt.textContent = "take a new photo instead";
+      alt.onclick = function () { gateFile.click(); };
+      gateStatus.parentNode.insertBefore(alt, gateStatus);
+    }
+  }
+
   fetch("/tonight", { cache: "no-store" })
     .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
     .then(function (info) {
-      if (info.file) {
-        setFinalPhoto(info.file);
-        gateNote.innerHTML =
-          "Every small light in this dark is a whole galaxy — and one of " +
-          "them is ours. Tonight’s photograph is already inside the story.";
-        showEnter("Come home ✧");
-        var alt = document.createElement("button");
-        alt.className = "gate-alt";
-        alt.type = "button";
-        alt.textContent = "take a new photo instead";
-        alt.onclick = function () { gateFile.click(); };
-        gateStatus.parentNode.insertBefore(alt, gateStatus);
-      }
+      serverMode = true;
+      if (info.file) { setFinalPhoto(info.file); photoIsIn(); }
     })
     .catch(function () {
-      // no upload server (local preview) — don't lock the door
-      showEnter("Enter ✧");
+      // static hosting — the photo lives on this device
+      var saved = localPhoto();
+      if (saved) { setFinalPhoto(saved); photoIsIn(); }
     });
 
   gateFile.addEventListener("change", function () {
@@ -1395,19 +1428,33 @@
     if (!f) return;
     gateBtn.disabled = true;
     gateStatus.textContent = "keeping this one forever…";
-    fetch("/upload", { method: "POST", body: f })
-      .then(function (r) {
-        return r.json().then(function (j) { if (!r.ok) throw j; return j; });
-      })
-      .then(function (j) {
-        setFinalPhoto(j.file);
+    if (serverMode) {
+      fetch("/upload", { method: "POST", body: f })
+        .then(function (r) {
+          return r.json().then(function (j) { if (!r.ok) throw j; return j; });
+        })
+        .then(function (j) {
+          setFinalPhoto(j.file);
+          gateStatus.textContent = "it’s in — come home ✧";
+          setTimeout(startDive, 900);
+        })
+        .catch(function () {
+          gateBtn.disabled = false;
+          gateStatus.textContent = "that didn’t save — try once more?";
+        });
+    } else {
+      shrinkImage(f, function (dataUrl) {
+        if (!dataUrl) {
+          gateBtn.disabled = false;
+          gateStatus.textContent = "that didn’t work — try once more?";
+          return;
+        }
+        try { localStorage.setItem(LS_PHOTO, dataUrl); } catch (e) {}
+        setFinalPhoto(dataUrl);
         gateStatus.textContent = "it’s in — come home ✧";
         setTimeout(startDive, 900);
-      })
-      .catch(function () {
-        gateBtn.disabled = false;
-        gateStatus.textContent = "that didn’t save — try once more?";
       });
+    }
   });
 
   // ---------- Drawing ----------
