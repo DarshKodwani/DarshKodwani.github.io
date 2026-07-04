@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Thirty Trips Around the Sun</title>
+<style>
+  :root {
+    --sky: #070b18;
+    --sky-soft: #0d1328;
+    --ink: #e9e2d4;
+    --ink-dim: #b3aa97;
+    --gold: #d9c3a3;
+    --gold-deep: #b08d57;
+    --rose: #d38f9b;
+    --frame: #f6f1e7;
+    --frame-ink: #3d3229;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--sky);
+    color: var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ---------- The sky (fixed canvas behind everything) ---------- */
+  #sky {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100lvh; /* stable on iOS while the URL bar collapses */
+    z-index: 0;
+    display: block;
+  }
+
+  /* ---------- Date readout ---------- */
+  #hud {
+    position: fixed;
+    left: 50%;
+    bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    max-width: 94vw;
+    z-index: 3;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(7, 11, 24, 0.55);
+    border: 1px solid rgba(217, 195, 163, 0.25);
+    border-radius: 999px;
+    padding: 0.45rem 1.3rem;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    white-space: nowrap;
+    transition: opacity 0.6s ease;
+  }
+  #hud .trips { color: var(--rose); }
+
+  /* ---------- Content column ---------- */
+  main { position: relative; z-index: 1; }
+
+  /* On wide screens the solar system sits to the left; content flows right */
+  @media (min-width: 1100px) {
+    main { margin-left: 52vw; margin-right: 4vw; }
+    section, .hero-inner { max-width: 42rem; }
+  }
+  @media (max-width: 1099px) {
+    section, .hero-inner { max-width: 44rem; margin-left: auto; margin-right: auto; }
+  }
+
+  section { padding: 22vh 1.4rem; position: relative; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: 2rem 1.4rem;
+  }
+  .hero-inner { width: 100%; text-align: center; }
+
+  .hero .eyebrow {
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 1.2s ease both;
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: normal;
+    font-style: italic;
+    line-height: 1.18;
+    animation: fadeUp 1.2s ease 0.3s both;
+  }
+  .hero .her-name { color: var(--rose); }
+  .hero .subtitle {
+    margin-top: 1.8rem;
+    font-size: 1.1rem;
+    color: var(--ink-dim);
+    animation: fadeUp 1.2s ease 0.6s both;
+  }
+  .hero .subtitle em { color: var(--gold); font-style: normal; }
+  .hero .scroll-hint {
+    margin-top: 3.5rem;
+    font-size: 1.5rem;
+    color: var(--gold);
+    animation: fadeUp 1.2s ease 1s both, drift 2.4s ease-in-out 2s infinite;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes drift {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(8px); }
+  }
+
+  /* ---------- Chapters ---------- */
+  .chapter-head { margin-bottom: 2.2rem; }
+  .chapter-head .when {
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .chapter-head h2 {
+    font-weight: normal;
+    font-style: italic;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    margin-top: 0.3rem;
+    color: var(--ink);
+  }
+  .chapter-head h2 .n { color: var(--rose); }
+
+  /* Poem stanza */
+  .stanza {
+    font-size: 1.16rem;
+    font-style: italic;
+    color: var(--ink);
+    border-left: 1px solid rgba(217, 195, 163, 0.45);
+    padding-left: 1.3rem;
+    margin: 0 0 2.6rem 0.15rem;
+    max-width: 36em;
+  }
+  .stanza .line { display: block; }
+  .stanza .line + .line { margin-top: 0.15rem; }
+
+  /* Photo frames */
+  .photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4rem;
+    align-items: flex-start;
+  }
+  figure.shot {
+    background: var(--frame);
+    padding: 0.65rem 0.65rem 0.9rem;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.55);
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform 0.3s ease;
+    flex: 1 1 240px;
+    max-width: 340px;
+  }
+  figure.shot:hover { transform: rotate(0deg) scale(1.02); }
+  .photos figure:nth-child(odd)  { --tilt: -1.4deg; }
+  .photos figure:nth-child(even) { --tilt: 1.2deg; }
+
+  figure.shot img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+  }
+  figure.shot figcaption {
+    text-align: center;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #6b5d4f;
+    margin-top: 0.55rem;
+    line-height: 1.4;
+  }
+
+  /* "Meanwhile that year" strip */
+  .meanwhile { margin-top: 2.6rem; }
+  .meanwhile .mw-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 1rem;
+  }
+  .meanwhile .photos { gap: 1rem; }
+  .meanwhile figure.shot { flex: 1 1 150px; max-width: 210px; padding: 0.45rem 0.45rem 0.65rem; }
+  .meanwhile figure.shot img { aspect-ratio: 1 / 1; }
+  .meanwhile figure.shot figcaption { font-size: 0.75rem; }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* Empty frame for the 30th */
+  .tonight {
+    border: 1px dashed rgba(217, 195, 163, 0.55);
+    background: rgba(13, 19, 40, 0.5);
+    aspect-ratio: 4 / 5;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-style: italic;
+    color: var(--ink-dim);
+  }
+
+  /* ---------- The gate (homepage) ---------- */
+  #gate {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    transition: opacity 1.4s ease, visibility 0s linear 1.4s;
+  }
+  .gate-inner { max-width: 34rem; }
+  #gate .eyebrow {
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--gold);
+    margin-bottom: 1.4rem;
+  }
+  #gate h1 {
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: normal;
+    font-style: italic;
+    line-height: 1.18;
+  }
+  #gate .her-name { color: var(--rose); }
+  #gate .gate-note {
+    margin-top: 1.6rem;
+    color: var(--ink-dim);
+    font-size: 1.02rem;
+    font-style: italic;
+  }
+  .gate-btn {
+    display: inline-block;
+    margin-top: 2.2rem;
+    font: italic 1.05rem Georgia, serif;
+    color: var(--sky);
+    background: var(--gold);
+    border: none;
+    border-radius: 999px;
+    padding: 0.85rem 2.1rem;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    box-shadow: 0 0 34px rgba(217, 195, 163, 0.35);
+  }
+  .gate-btn:active { transform: scale(0.97); }
+  .gate-alt {
+    display: block;
+    margin-top: 1.1rem;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--ink-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  #gate .gate-status {
+    margin-top: 1.2rem;
+    min-height: 1.4em;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--gold);
+  }
+  #gateFile { display: none; }
+  #gate {
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  .gate-hint {
+    margin-top: 2.4rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    opacity: 0.85;
+  }
+
+  body.gated { overflow: hidden; touch-action: none; }
+  body.genesis #gate { opacity: 0; pointer-events: none; }
+
+  /* ---------- Narration over the opening ---------- */
+  #narration {
+    position: fixed;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.6rem;
+    pointer-events: none;
+  }
+  #narrLine {
+    font-style: italic;
+    font-size: clamp(1.15rem, 3vw, 1.65rem);
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 26em;
+    text-shadow: 0 0 24px rgba(7, 11, 24, 0.9);
+    transition: opacity 0.9s ease;
+  }
+  #narrLine.typing::after {
+    content: "|";
+    color: var(--gold);
+    animation: caret 0.9s step-end infinite;
+  }
+  @keyframes caret { 50% { opacity: 0; } }
+  #narrLine.faded { opacity: 0; }
+
+  #caption {
+    position: fixed;
+    left: 50%;
+    bottom: 16%;
+    transform: translateX(-50%);
+    z-index: 4;
+    width: min(92vw, 34em);
+    text-align: center;
+    font-style: italic;
+    font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+    color: var(--gold);
+    text-shadow: 0 0 18px rgba(7, 11, 24, 0.95);
+    opacity: 0;
+    transition: opacity 1.1s ease;
+    pointer-events: none;
+  }
+  #caption.show { opacity: 0.92; }
+
+  #skipIntro {
+    position: fixed;
+    right: 1.2rem;
+    bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px));
+    z-index: 6;
+    background: none;
+    border: none;
+    font: italic 0.85rem Georgia, serif;
+    color: var(--ink-dim);
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    padding: 0.4rem 0.6rem;
+  }
+  #skipIntro.show { opacity: 0.7; }
+  #skipIntro.gone { display: none; }
+
+  /* The opening is scrubbed by scroll: this invisible runway is the timeline */
+  #introScroll { height: 520vh; }
+  body:not(.introScrub) #introScroll { display: none; }
+  body.introScrub { overflow: auto; touch-action: pan-y; }
+
+  #scrollHint {
+    position: fixed;
+    left: 50%;
+    bottom: calc(1.6rem + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    z-index: 4;
+    font: italic 0.95rem Georgia, serif;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    pointer-events: none;
+    animation: drift 2.4s ease-in-out infinite;
+  }
+  #scrollHint.show { opacity: 0.85; }
+  body.gated main, body.gated #hud { display: none; }
+  body.entered #gate { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  /* Desktop: gate text lives in the right column, clear of the planets */
+  @media (min-width: 1100px) {
+    #gate { justify-content: flex-start; padding-left: 52vw; padding-right: 4vw; }
+  }
+
+  @media (max-width: 700px) {
+    #gate { align-items: flex-start; padding-top: 13svh; }
+  }
+
+  /* ---------- Phone layout: each chapter gives the sky its own moment ----------
+     Sequence on small screens: date/title → clear sky window (the solar
+     system settled on that birthday) → photos → poem stanza.               */
+  .sky-window { display: none; }
+
+  @media (max-width: 1099px) {
+    section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.7rem;
+    }
+    .chapter-head { margin-bottom: 0; }
+    .stanza { margin-bottom: 0; }
+    .meanwhile { margin-top: 0; }
+
+    .chapter-head { order: 0; }
+    .sky-window   { order: 1; }
+    .photos       { order: 2; }
+    .meanwhile    { order: 3; }
+    .stanza       { order: 4; }
+
+    .sky-window {
+      display: block;
+      height: 68vh;
+      height: 68svh;
+    }
+
+    /* scrims live on the text blocks now, so the sky window stays pure */
+    .chapter-head, .stanza, .meanwhile .mw-label, .section-intro {
+      background: rgba(7, 11, 24, 0.72);
+      border-radius: 12px;
+      padding: 0.9rem 1.05rem;
+    }
+    .meanwhile .mw-label { display: inline-block; margin-bottom: 1rem; }
+  }
+  @media (max-width: 700px) {
+    .hero {
+      align-items: flex-start;
+      padding-top: 11svh;
+    }
+    .hero .subtitle { font-size: 0.98rem; }
+    .hero .scroll-hint { margin-top: 1.6rem; }
+    section { padding: 15vh 1.2rem; }
+    .stanza { font-size: 1.06rem; padding-left: 1.05rem; }
+    #hud {
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      padding: 0.4rem 0.95rem;
+    }
+    figure.shot { max-width: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hero .eyebrow, .hero h1, .hero .subtitle, .hero .scroll-hint { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+</style>
+</head>
+<body class="gated genesis">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<!-- ============ NARRATION ============ -->
+<div id="narration"><p id="narrLine"></p></div>
+<p id="caption"></p>
+<button id="skipIntro" type="button">skip &#10087;</button>
+<div id="introScroll" aria-hidden="true"></div>
+<p id="scrollHint">scroll &#10087;</p>
+
+<!-- ============ THE GATE ============ -->
+<div id="gate">
+  <div class="gate-inner">
+    <p class="eyebrow">7 July 1996 &nbsp;&mdash;&nbsp; 7 July 2026</p>
+    <h1>Thirty Trips Around the Sun,<br><span class="her-name">My&nbsp;Love</span></h1>
+    <p class="gate-note" id="gateNote">
+      Every small light in this dark is a whole galaxy of stars.
+      One of them is ours. The story inside is sealed until tonight has a
+      photograph &mdash; take one picture, just as you are,
+      and I&rsquo;ll bring you home.
+    </p>
+    <input type="file" id="gateFile" accept="image/*" capture="environment">
+    <button class="gate-btn" id="gateBtn" type="button">Take tonight&rsquo;s photo &#10087;</button>
+    <div class="gate-status" id="gateStatus"></div>
+    <p class="gate-hint">drag to wander &middot; pinch or scroll to drift</p>
+  </div>
+</div>
+<div id="hud" aria-hidden="true"><span class="date">7 July 1996</span> &nbsp;&middot;&nbsp; <span class="trips">0 trips around the sun</span></div>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero" data-date="1996-07-07">
+    <div class="hero-inner">
+      <p class="eyebrow">7 July 1996 &nbsp;&mdash;&nbsp; 7 July 2026</p>
+      <h1>Thirty Trips Around the Sun,<br><span class="her-name">My&nbsp;Love</span></h1>
+      <p class="scroll-hint">&#10087;</p>
+    </div>
+  </header>
+
+  <!-- ============ PROLOGUE ============ -->
+  <section data-date="2020-04-07">
+    <div class="chapter-head reveal">
+      <p class="when">April 2020 &middot; Before the first orbit together</p>
+      <h2>The First Word</h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">The first word was sent across the globe,</span>
+      <span class="line">From your house to my humble abode,</span>
+      <span class="line">The time we spoke was just the beginning,</span>
+      <span class="line">The beginning of the incredible journey with my heart-throbe</span>
+    </p>
+    <div class="photos reveal">
+      <figure class="shot">
+        <img src="photos/1st_time_we_spoke_april2020.jpeg" alt="" loading="lazy">
+        <figcaption>7 April 2020</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="photos/b5493b35-bc15-41d9-900d-4d5ce895ce3a.jpeg" alt="" loading="lazy">
+        <figcaption>June 2020</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ 2020 · 24 ============ -->
+  <section data-date="2020-07-07">
+    <div class="chapter-head reveal">
+      <p class="when">7 July 2020 &middot; 24 trips around the sun</p>
+      <h2>Twenty-<span class="n">Four</span></h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">On the 24th trip you took a turn into my life,</span>
+      <span class="line">There was never a more important decision that you made correctly, once, twice or thrice,</span>
+      <span class="line">This brought us closer and closer,</span>
+      <span class="line">To be tied together in our journey forever</span>
+    </p>
+    <div class="photos reveal">
+      <figure class="shot">
+        <img src="photos/Untitled presentation.jpeg" alt="" loading="lazy">
+        <figcaption>7 July 2020</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="photos/12e0c426-2767-46e9-b89b-e7f96688858f.jpeg" alt="" loading="lazy">
+        <figcaption>7 July 2020</figcaption>
+      </figure>
+    </div>
+    <div class="meanwhile reveal">
+      <p class="mw-label">Meanwhile, that year</p>
+      <div class="photos">
+        <figure class="shot">
+          <img src="photos/IMG_4548.jpeg" alt="" loading="lazy">
+          <figcaption>20 November 2020</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="photos/IMG_4654.jpeg" alt="" loading="lazy">
+          <figcaption>20 November 2020</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="photos/IMG_4659.jpeg" alt="" loading="lazy">
+          <figcaption>20 November 2020</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="photos/IMG_4572.jpeg" alt="" loading="lazy">
+          <figcaption>21 November 2020</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="photos/DSC_2267.jpeg" alt="" loading="lazy">
+          <figcaption>25 December 2020</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2021 · 25 ============ -->
+  <section data-date="2021-07-07">
+    <div class="chapter-head reveal">
+      <p class="when">7 July 2021 &middot; 25 trips around the sun</p>
+      <h2>Twenty-<span class="n">Five</span></h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">From here the year ran quick and golden: twenty-five,</span>
+      <span class="line">a castle for your birthday, white flowers arched above the door.</span>
+      <span class="line">Mercury circled four whole times while I was learning you by heart,</span>
+      <span class="line">and even Saturn, slow and ringed, could not stay put.</span>
+    </p>
+    <div class="photos reveal">
+      <figure class="shot">
+        <img src="photos/FullSizeRender.jpeg" alt="" loading="lazy">
+        <figcaption>7 July 2021</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="photos/IMG_4161.jpeg" alt="" loading="lazy">
+        <figcaption>7 July 2021</figcaption>
+      </figure>
+    </div>
+    <div class="meanwhile reveal">
+      <p class="mw-label">Meanwhile, that year</p>
+      <div class="photos">
+        <figure class="shot">
+          <img src="photos/IMG_5107.jpeg" alt="" loading="lazy">
+          <figcaption>25 September 2021</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="photos/IMG_0116.jpeg" alt="" loading="lazy">
+          <figcaption>30 October 2021</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2022 · 26 ============ -->
+  <section data-date="2022-07-07">
+    <div class="chapter-head reveal">
+      <p class="when">7 July 2022 &middot; 26 trips around the sun</p>
+      <h2>Twenty-<span class="n">Six</span></h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">Nothing stays put &mdash; that is the first law of moving things &mdash;</span>
+      <span class="line">yet twenty-six was homemade: strawberries and candle-smoke,</span>
+      <span class="line">a paper sash, a kitchen-table cake,</span>
+      <span class="line">the same warm evening coming round again.</span>
+    </p>
+    <div class="photos reveal">
+      <figure class="shot">
+        <img src="photos/IMG_1246.jpeg" alt="" loading="lazy">
+        <figcaption>7 July 2022</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ 2023 · 27 ============ -->
+  <section data-date="2023-07-07">
+    <div class="chapter-head reveal">
+      <p class="when">7 July 2023 &middot; 27 trips around the sun</p>
+      <h2>Twenty-<span class="n">Seven</span></h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">Again, and gladly: twenty-seven, barefoot</span>
+      <span class="line">where the sun slid gold into the sea two days ahead of schedule,</span>
+      <span class="line">then mountains on the morning of the day itself &mdash;</span>
+      <span class="line">one evening was never going to hold all of that light.</span>
+    </p>
+    <div class="photos reveal">
+      <figure class="shot">
+        <img src="photos/IMG_2115.jpeg" alt="" loading="lazy">
+        <figcaption>5 July 2023</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="photos/IMG_2173.jpeg" alt="" loading="lazy">
+        <figcaption>7 July 2023</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ 2024 · 28 ============ -->
+  <section data-date="2024-07-07">
+    <div class="chapter-head reveal">
+      <p class="when">7 July 2024 &middot; 28 trips around the sun</p>
+      <h2>Twenty-<span class="n">Eight</span></h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">All of that light, and more of it: twenty-eight</span>
+      <span class="line">stretched three days wide &mdash; macarons by candlelight,</span>
+      <span class="line">then you at the helm of a little boat, a skyline looking on &mdash;</span>
+      <span class="line">proof that some years can't be kept inside a single turn.</span>
+    </p>
+    <div class="photos reveal">
+      <figure class="shot">
+        <img src="photos/IMG_1273.jpeg" alt="" loading="lazy">
+        <figcaption>6 July 2024</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="photos/IMG_1287.jpeg" alt="" loading="lazy">
+        <figcaption>8 July 2024</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ 2025 · 29 ============ -->
+  <section data-date="2025-07-07">
+    <div class="chapter-head reveal">
+      <p class="when">7 July 2025 &middot; 29 trips around the sun</p>
+      <h2>Twenty-<span class="n">Nine</span></h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">One more turn: twenty-nine beneath pink balloons,</span>
+      <span class="line">a candle burning in your dessert across a table set for two,</span>
+      <span class="line">and me beside you, keeping my favourite orbit &mdash;</span>
+      <span class="line">the one that circles you.</span>
+    </p>
+    <div class="photos reveal">
+      <figure class="shot">
+        <img src="photos/IMG_2959.jpeg" alt="" loading="lazy">
+        <figcaption>5 July 2025</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="photos/photo-837_singular_display_fullPicture.jpeg" alt="" loading="lazy">
+        <figcaption>7 July 2025</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ 2026 · 30 ============ -->
+  <section data-date="2026-07-07">
+    <div class="chapter-head reveal">
+      <p class="when">7 July 2026 &middot; 30 trips around the sun</p>
+      <h2><span class="n">Thirty</span></h2>
+    </div>
+    <div class="sky-window" aria-hidden="true"></div>
+    <p class="stanza reveal">
+      <span class="line">Thirty trips around the sun.</span>
+      <span class="line">The planets wheel above us as they did the night we started,</span>
+      <span class="line">and none of them, in all that turning,</span>
+      <span class="line">ever found a steadier light than you.</span>
+      <span class="line">&nbsp;</span>
+      <span class="line">Happy birthday, my love.</span>
+    </p>
+    <div class="photos reveal" id="finalFrame">
+      <div class="tonight">
+        This frame is waiting for tonight's photo &mdash;<br>
+        the first of your thirty-first orbit.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =====================================================================
+   THE SKY — real solar-system positions, scroll-driven through her years
+   Model: JPL "Approximate Positions of the Planets" (Keplerian elements
+   + rates per Julian century, valid 1800–2050).
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  var DEG = Math.PI / 180;
+
+  var PLANETS = [
+    { name: "Mercury", color: "#b8aa98", size: 2.6,
+      el: [0.38709927, 0.20563593, 7.00497902, 252.25032350, 77.45779628, 48.33076593],
+      rate: [0.00000037, 0.00001906, -0.00594749, 149472.67411175, 0.16047689, -0.12534081] },
+    { name: "Venus", color: "#e8cfa1", size: 4.2,
+      el: [0.72333566, 0.00677672, 3.39467605, 181.97909950, 131.60246718, 76.67984255],
+      rate: [0.00000390, -0.00004107, -0.00078890, 58517.81538729, 0.00268329, -0.27769418] },
+    { name: "Earth", color: "#7fb2e5", size: 4.4,
+      el: [1.00000261, 0.01671123, -0.00001531, 100.46457166, 102.93768193, 0.0],
+      rate: [0.00000562, -0.00004392, -0.01294668, 35999.37244981, 0.32327364, 0.0] },
+    { name: "Mars", color: "#d98a6a", size: 3.4,
+      el: [1.52371034, 0.09339410, 1.84969142, -4.55343205, -23.94362959, 49.55953891],
+      rate: [0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343] },
+    { name: "Jupiter", color: "#dfba8c", size: 8.0,
+      el: [5.20288700, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909],
+      rate: [-0.00011607, -0.00013253, -0.00183714, 3034.74612775, 0.21252668, 0.20469106] },
+    { name: "Saturn", color: "#e6d3a3", size: 6.8, ring: true,
+      el: [9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448],
+      rate: [-0.00125060, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794] },
+    { name: "Uranus", color: "#a9d6d9", size: 5.2,
+      el: [19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.95427630, 74.01692503],
+      rate: [-0.00196176, -0.00004397, -0.00242939, 428.48202785, 0.40805281, 0.04240589] },
+    { name: "Neptune", color: "#8aa7e0", size: 5.0,
+      el: [30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574],
+      rate: [0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.06839830] }
+  ];
+
+  function julianDate(y, m, d) {
+    if (m <= 2) { y -= 1; m += 12; }
+    var A = Math.floor(y / 100), B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+  }
+  function jdFromISO(iso) {
+    var p = iso.split("-");
+    return julianDate(+p[0], +p[1], +p[2]);
+  }
+  // Calendar date back from a Julian date (Fliegel–Van Flandern)
+  function calendarFromJD(jd) {
+    var z = Math.floor(jd + 0.5);
+    var a = Math.floor((z - 1867216.25) / 36524.25);
+    var aa = z + 1 + a - Math.floor(a / 4);
+    var b = aa + 1524;
+    var c = Math.floor((b - 122.1) / 365.25);
+    var d = Math.floor(365.25 * c);
+    var e = Math.floor((b - d) / 30.6001);
+    var day = b - d - Math.floor(30.6001 * e);
+    var month = (e < 14) ? e - 1 : e - 13;
+    var year = (month > 2) ? c - 4716 : c - 4715;
+    return { y: year, m: month, d: day };
+  }
+
+  // Heliocentric ecliptic x,y (AU) for a planet at a Julian date
+  function position(p, jd) {
+    var T = (jd - 2451545.0) / 36525.0;
+    var a = p.el[0] + p.rate[0] * T;
+    var e = p.el[1] + p.rate[1] * T;
+    var I = (p.el[2] + p.rate[2] * T) * DEG;
+    var L = p.el[3] + p.rate[3] * T;
+    var varpi = p.el[4] + p.rate[4] * T;
+    var Omega = (p.el[5] + p.rate[5] * T) * DEG;
+    var omega = varpi * DEG - Omega;
+    var M = ((L - varpi) % 360 + 360) % 360;
+    if (M > 180) M -= 360;
+    M *= DEG;
+    var E = M + e * Math.sin(M);
+    for (var i = 0; i < 8; i++) {
+      var dE = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+      E -= dE;
+      if (Math.abs(dE) < 1e-8) break;
+    }
+    var xp = a * (Math.cos(E) - e);
+    var yp = a * Math.sqrt(1 - e * e) * Math.sin(E);
+    var cw = Math.cos(omega), sw = Math.sin(omega);
+    var cO = Math.cos(Omega), sO = Math.sin(Omega);
+    var cI = Math.cos(I);
+    return {
+      x: (cw * cO - sw * sO * cI) * xp + (-sw * cO - cw * sO * cI) * yp,
+      y: (cw * sO + sw * cO * cI) * xp + (-sw * sO + cw * cO * cI) * yp
+    };
+  }
+
+  // Distance compression so Neptune fits on screen while Mercury stays visible.
+  var COMPRESS = 0.42;
+  function squash(rAU) { return Math.pow(rAU, COMPRESS); }
+  var MAX_R = squash(30.4); // just beyond Neptune's aphelion
+
+  // ---------- Canvas ----------
+  var canvas = document.getElementById("sky");
+  var ctx = canvas.getContext("2d");
+  var W = 0, H = 0, DPR = 1;
+  var stars = [];
+
+  function resize(force) {
+    // iOS fires resize as the URL bar collapses while scrolling; the canvas
+    // is sized in lvh so its element size only changes on real resizes.
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!force && w === W && h === H) return;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = w; H = h;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    stars = [];
+    var n = Math.floor((W * H) / 5200);
+    for (var i = 0; i < n; i++) {
+      stars.push({
+        x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.1 + 0.25,
+        base: Math.random() * 0.5 + 0.25,
+        ph: Math.random() * Math.PI * 2,
+        sp: Math.random() * 0.9 + 0.25
+      });
+    }
+    orbitCache = null;
+  }
+  window.addEventListener("resize", function () { resize(false); buildAnchors(); });
+
+  function sunCenter() {
+    if (W >= 1100) return { x: W * 0.27, y: H * 0.5, s: Math.min(W * 0.24, H * 0.44) / MAX_R };
+    // Phones: keep the system in the lower half, clear of the hero title
+    return { x: W * 0.5, y: H * 0.60, s: (Math.min(W, H) * 0.44) / MAX_R };
+  }
+
+  /* ---------- The universe (homepage) ----------
+     phase: 'universe' (interactive galaxy field) → 'dive' (the ride home)
+            → 'system' (the solar system that carries the story)          */
+  var phase = "genesis"; // 'genesis' → 'universe' → 'dive' → 'system'
+  var genFixedT = null;
+  var genT = 0;           // scroll-scrubbed position in the big bang, 0..1
+  var genStarted = false; // false while the quote writes itself on black
+  var cmbFrames = [];
+  var upan = { x: 0, y: 0 };
+  var uzoom = 1;
+  var UZOOM_MIN = 0.55, UZOOM_MAX = 2.4;
+  var galaxies = [], nebulae = [], spriteVariants = [], mwSprite = null;
+  var diveStart = 0, diveFixedT = null;
+  var DIVE_MS = 9000;
+  var MW_R = 34; // our galaxy's on-screen radius at uzoom 1
+
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function smooth(v) { v = clamp01(v); return v * v * (3 - 2 * v); }
+
+  function makeGalaxySprite(kind, core, arm) {
+    var size = 96, r = 40;
+    var cv = document.createElement("canvas");
+    cv.width = cv.height = size;
+    var g = cv.getContext("2d");
+    g.translate(size / 2, size / 2);
+    if (kind === "spiral") {
+      for (var k = 0; k < 240; k++) {
+        var u = k / 240;
+        var th = (k % 2) * Math.PI + u * 4.6 + (Math.random() - 0.5) * 0.5;
+        var rr = r * Math.pow(u, 0.72) * (0.92 + Math.random() * 0.16);
+        g.globalAlpha = (1 - u) * 0.4 + 0.05;
+        g.fillStyle = Math.random() < 0.72 ? arm : "#ffffff";
+        g.beginPath();
+        g.arc(Math.cos(th) * rr, Math.sin(th) * rr * 0.62, 0.7 + Math.random() * 1.1, 0, 6.2832);
+        g.fill();
+      }
+    }
+    var bg = g.createRadialGradient(0, 0, 0, 0, 0, kind === "spiral" ? 13 : 26);
+    bg.addColorStop(0, core);
+    bg.addColorStop(1, "rgba(0,0,0,0)");
+    g.globalAlpha = 1;
+    g.fillStyle = bg;
+    if (kind === "spiral") {
+      g.beginPath(); g.arc(0, 0, 13, 0, 6.2832); g.fill();
+    } else {
+      g.save(); g.scale(1, 0.68);
+      g.beginPath(); g.arc(0, 0, 26, 0, 6.2832); g.fill();
+      g.restore();
+    }
+    return cv;
+  }
+
+  function makeMilkyWay() {
+    var size = 640, R = 300;
+    var cv = document.createElement("canvas");
+    cv.width = cv.height = size;
+    var g = cv.getContext("2d");
+    g.translate(size / 2, size / 2);
+    var halo = g.createRadialGradient(0, 0, 0, 0, 0, R);
+    halo.addColorStop(0, "rgba(210, 220, 255, 0.10)");
+    halo.addColorStop(0.5, "rgba(190, 205, 245, 0.04)");
+    halo.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = halo;
+    g.beginPath(); g.arc(0, 0, R, 0, 6.2832); g.fill();
+    for (var k = 0; k < 4200; k++) {
+      var u = Math.random();
+      var th = (k % 4) * (Math.PI / 2) + u * 4.4 + (Math.random() - 0.5) * (0.35 + 0.5 * u);
+      var rr = R * Math.pow(u, 0.62) * (0.9 + Math.random() * 0.2);
+      g.globalAlpha = (1 - u) * 0.32 + 0.04;
+      g.fillStyle = u < 0.35 ? "#ffe6c2" : (Math.random() < 0.8 ? "#b9ccf2" : "#ffffff");
+      g.beginPath();
+      g.arc(Math.cos(th) * rr, Math.sin(th) * rr, 0.6 + Math.random() * 1.5, 0, 6.2832);
+      g.fill();
+    }
+    var bg = g.createRadialGradient(0, 0, 0, 0, 0, 62);
+    bg.addColorStop(0, "rgba(255, 234, 200, 0.95)");
+    bg.addColorStop(0.4, "rgba(255, 224, 178, 0.35)");
+    bg.addColorStop(1, "rgba(0,0,0,0)");
+    g.globalAlpha = 1;
+    g.fillStyle = bg;
+    g.beginPath(); g.arc(0, 0, 62, 0, 6.2832); g.fill();
+    return cv;
+  }
+
+  /* The first light — a Gaussian random field with power concentrated at
+     one characteristic scale (the acoustic-peak look of the real CMB),
+     rendered through the Planck false-colour palette. Several frames of
+     the field are pre-computed so the pattern itself evolves on screen. */
+  var CMB_N = 256;
+
+  function noiseField(N) {
+    var acc = new Float32Array(N * N);
+    // [blob size in px, weight] — power peaked at ~5px, like the acoustic peak
+    var oct = [[3, 0.5], [5, 1.0], [9, 0.6], [17, 0.3], [33, 0.15]];
+    var tmp = document.createElement("canvas");
+    tmp.width = tmp.height = N;
+    var tg = tmp.getContext("2d");
+    tg.imageSmoothingEnabled = true;
+    for (var o = 0; o < oct.length; o++) {
+      var M = Math.max(2, Math.round(N / oct[o][0]));
+      var w = oct[o][1];
+      var small = document.createElement("canvas");
+      small.width = small.height = M;
+      var sg = small.getContext("2d");
+      var id = sg.createImageData(M, M);
+      for (var i = 0; i < M * M; i++) {
+        var v = Math.floor(Math.random() * 256);
+        id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = v;
+        id.data[i * 4 + 3] = 255;
+      }
+      sg.putImageData(id, 0, 0);
+      tg.clearRect(0, 0, N, N);
+      tg.drawImage(small, 0, 0, N, N);
+      var px = tg.getImageData(0, 0, N, N).data;
+      for (var j = 0; j < N * N; j++) acc[j] += w * (px[j * 4] - 127.5);
+    }
+    return acc;
+  }
+
+  // Planck map palette: cold blue → light blue → cream → orange → deep red
+  var CMB_STOPS = [
+    [0.00, 11, 43, 122],
+    [0.30, 74, 133, 205],
+    [0.50, 238, 232, 213],
+    [0.70, 226, 137, 48],
+    [1.00, 122, 21, 6]
+  ];
+  function cmbColor(v) {
+    for (var i = 1; i < CMB_STOPS.length; i++) {
+      if (v <= CMB_STOPS[i][0]) {
+        var a = CMB_STOPS[i - 1], b = CMB_STOPS[i];
+        var f = (v - a[0]) / (b[0] - a[0]);
+        return [a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f, a[3] + (b[3] - a[3]) * f];
+      }
+    }
+    return [122, 21, 6];
+  }
+
+  function makeCMBFrames() {
+    var N = CMB_N;
+    var A = noiseField(N), B = noiseField(N);
+    function stats(F) {
+      var m = 0, s = 0, i;
+      for (i = 0; i < F.length; i++) m += F[i];
+      m /= F.length;
+      for (i = 0; i < F.length; i++) s += (F[i] - m) * (F[i] - m);
+      return { m: m, s: Math.sqrt(s / F.length) || 1 };
+    }
+    var sa = stats(A), sb = stats(B);
+    var frames = [], K = 7;
+    for (var k = 0; k < K; k++) {
+      var b = k / (K - 1);
+      var norm = Math.sqrt((1 - b) * (1 - b) + b * b);
+      var cv = document.createElement("canvas");
+      cv.width = cv.height = N;
+      var g = cv.getContext("2d");
+      var id = g.createImageData(N, N);
+      for (var i = 0; i < N * N; i++) {
+        var va = (A[i] - sa.m) / sa.s;
+        var vb = (B[i] - sb.m) / sb.s;
+        var u = 0.5 + (((1 - b) * va + b * vb) / norm) * 0.21;
+        u = u < 0 ? 0 : u > 1 ? 1 : u;
+        var col = cmbColor(u);
+        id.data[i * 4] = col[0] | 0;
+        id.data[i * 4 + 1] = col[1] | 0;
+        id.data[i * 4 + 2] = col[2] | 0;
+        id.data[i * 4 + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      frames.push(cv);
+    }
+    return frames;
+  }
+
+  function initUniverse() {
+    cmbFrames = makeCMBFrames();
+    spriteVariants = [
+      makeGalaxySprite("spiral", "rgba(255,231,196,0.9)", "#a8c2ef"),
+      makeGalaxySprite("spiral", "rgba(255,214,214,0.9)", "#e7c3a8"),
+      makeGalaxySprite("elliptical", "rgba(240,230,255,0.8)", "#c8b8e8")
+    ];
+    mwSprite = makeMilkyWay();
+    galaxies = [];
+    for (var i = 0; i < 130; i++) {
+      var x = (Math.random() - 0.5) * 3600;
+      var y = (Math.random() - 0.5) * 3600;
+      if (Math.sqrt(x * x + y * y) < 170) continue; // leave room around ours
+      galaxies.push({
+        x: x, y: y,
+        depth: 0.25 + 0.75 * Math.pow(Math.random(), 1.4),
+        size: 7 + Math.random() * 26,
+        rot: Math.random() * Math.PI * 2,
+        a: 0.3 + Math.random() * 0.5,
+        v: Math.floor(Math.random() * spriteVariants.length)
+      });
+    }
+    var tints = ["rgba(96, 78, 148, 0.16)", "rgba(56, 96, 130, 0.14)", "rgba(140, 84, 108, 0.12)"];
+    nebulae = tints.map(function (tint) {
+      return {
+        x: (Math.random() - 0.5) * 2400,
+        y: (Math.random() - 0.5) * 2400,
+        r: 500 + Math.random() * 500,
+        c: tint
+      };
+    });
+  }
+
+  function drawGalaxyField(c, px, py, zoom, alphaMul, sizeMul) {
+    if (alphaMul <= 0) return;
+    sizeMul = sizeMul || 1;
+    for (var n = 0; n < nebulae.length; n++) {
+      var nb = nebulae[n];
+      var nx = c.x + (nb.x - px * 0.4) * zoom * 0.4;
+      var ny = c.y + (nb.y - py * 0.4) * zoom * 0.4;
+      var nr = nb.r * zoom;
+      var ng = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+      ng.addColorStop(0, nb.c);
+      ng.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalAlpha = alphaMul;
+      ctx.fillStyle = ng;
+      ctx.fillRect(nx - nr, ny - nr, nr * 2, nr * 2);
+    }
+    for (var i = 0; i < galaxies.length; i++) {
+      var ga = galaxies[i];
+      var gx = c.x + (ga.x - px) * zoom * ga.depth;
+      var gy = c.y + (ga.y - py) * zoom * ga.depth;
+      var gs = ga.size * zoom * (0.5 + ga.depth) * sizeMul;
+      if (gx < -gs || gx > W + gs || gy < -gs || gy > H + gs) continue;
+      ctx.save();
+      ctx.translate(gx, gy);
+      ctx.rotate(ga.rot);
+      ctx.globalAlpha = ga.a * alphaMul;
+      ctx.drawImage(spriteVariants[ga.v], -gs, -gs, gs * 2, gs * 2);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawMilkyWay(x, y, R, rot, alpha) {
+    if (alpha <= 0) return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.globalAlpha = Math.min(1, alpha);
+    ctx.drawImage(mwSprite, -R, -R, R * 2, R * 2);
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // Wandering: drag pans, pinch/scroll zooms — gate buttons stay clickable
+  var pointers = new Map();
+  function onGateUI(e) {
+    return e.target && e.target.closest && e.target.closest(".gate-inner");
+  }
+  window.addEventListener("pointerdown", function (e) {
+    if (phase !== "universe" || onGateUI(e)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  });
+  window.addEventListener("pointermove", function (e) {
+    if (phase !== "universe" || !pointers.has(e.pointerId)) return;
+    var me = pointers.get(e.pointerId);
+    if (pointers.size === 1) {
+      upan.x = Math.max(-1600, Math.min(1600, upan.x - (e.clientX - me.x) / uzoom));
+      upan.y = Math.max(-1600, Math.min(1600, upan.y - (e.clientY - me.y) / uzoom));
+    } else if (pointers.size === 2) {
+      var other = null;
+      pointers.forEach(function (p, id) { if (id !== e.pointerId) other = p; });
+      var d0 = Math.hypot(me.x - other.x, me.y - other.y);
+      var d1 = Math.hypot(e.clientX - other.x, e.clientY - other.y);
+      if (d0 > 0) uzoom = Math.max(UZOOM_MIN, Math.min(UZOOM_MAX, uzoom * d1 / d0));
+    }
+    me.x = e.clientX; me.y = e.clientY;
+  });
+  window.addEventListener("pointerup", function (e) { pointers.delete(e.pointerId); });
+  window.addEventListener("pointercancel", function (e) { pointers.delete(e.pointerId); });
+  window.addEventListener("wheel", function (e) {
+    if (phase !== "universe") return;
+    e.preventDefault();
+    uzoom = Math.max(UZOOM_MIN, Math.min(UZOOM_MAX, uzoom * Math.exp(-e.deltaY * 0.0012)));
+  }, { passive: false });
+
+  // Pre-render orbit paths (true shapes, compressed radially)
+  var orbitCache = null;
+  function buildOrbits() {
+    var c = sunCenter();
+    orbitCache = PLANETS.map(function (p) {
+      var pts = [];
+      var period = Math.pow(p.el[0], 1.5) * 365.25;
+      var jd0 = 2451545.0;
+      for (var i = 0; i <= 128; i++) {
+        var pos = position(p, jd0 + (i / 128) * period);
+        var r = Math.sqrt(pos.x * pos.x + pos.y * pos.y);
+        var f = squash(r) / r;
+        pts.push([c.x + pos.x * f * c.s, c.y - pos.y * f * c.s]);
+      }
+      return pts;
+    });
+  }
+
+  // ---------- Scroll → date ----------
+  var anchors = []; // { mid, jd } sorted by document position
+  function buildAnchors() {
+    anchors = [];
+    var els = document.querySelectorAll("[data-date]");
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      // on phones each chapter has a sky window — the planets should be
+      // settled on the chapter's date exactly when that window is centred
+      var sw = el.querySelector && el.querySelector(".sky-window");
+      var target = (sw && sw.offsetHeight > 40) ? sw : el;
+      var rect = target.getBoundingClientRect();
+      // the hero anchors below the focus point so the top of the page sits
+      // exactly on her birth date rather than already easing toward 2020
+      var f = el.classList.contains("hero") ? 0.56 : (target === el ? 0.45 : 0.5);
+      var mid = rect.top + window.scrollY + rect.height * f;
+      anchors.push({ mid: mid, jd: jdFromISO(el.getAttribute("data-date")) });
+    }
+    anchors.sort(function (a, b) { return a.mid - b.mid; });
+  }
+
+  function targetJD() {
+    if (gated) return jdToday();
+    if (!anchors.length) return jdFromISO("2026-07-07");
+    var focus = window.scrollY + window.innerHeight * 0.5;
+    if (focus <= anchors[0].mid) return anchors[0].jd;
+    for (var i = 0; i < anchors.length - 1; i++) {
+      var a = anchors[i], b = anchors[i + 1];
+      if (focus < b.mid) {
+        if (b.jd === a.jd || b.mid === a.mid) return a.jd;
+        var t = (focus - a.mid) / (b.mid - a.mid);
+        t = t * t * (3 - 2 * t); // smoothstep between chapters
+        return a.jd + (b.jd - a.jd) * t;
+      }
+    }
+    return anchors[anchors.length - 1].jd;
+  }
+
+  // ---------- HUD ----------
+  var hud = document.getElementById("hud");
+  var hudDate = hud.querySelector(".date");
+  var hudTrips = hud.querySelector(".trips");
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var JD_BIRTH = julianDate(1996, 7, 7);
+  var lastHud = "";
+  function updateHUD(jd) {
+    var c = calendarFromJD(jd);
+    var trips = Math.max(0, Math.floor((jd - JD_BIRTH) / 365.2425));
+    var key = c.d + "-" + c.m + "-" + c.y + "-" + trips;
+    if (key === lastHud) return;
+    lastHud = key;
+    hudDate.textContent = c.d + " " + MONTHS[c.m - 1] + " " + c.y;
+    hudTrips.textContent = trips + (trips === 1 ? " trip" : " trips") + " around the sun";
+  }
+
+  // ---------- The gate ----------
+  var gated = document.body.classList.contains("gated");
+  var gateBtn = document.getElementById("gateBtn");
+  var gateFile = document.getElementById("gateFile");
+  var gateStatus = document.getElementById("gateStatus");
+  var gateNote = document.getElementById("gateNote");
+
+  function jdToday() {
+    var d = new Date();
+    return julianDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  }
+
+  function setFinalPhoto(path) {
+    var slot = document.getElementById("finalFrame");
+    slot.innerHTML = "";
+    var fig = document.createElement("figure");
+    fig.className = "shot";
+    var img = document.createElement("img");
+    img.src = path + "?v=" + Date.now();
+    img.alt = "";
+    fig.appendChild(img);
+    var cap = document.createElement("figcaption");
+    cap.textContent = "7 July 2026";
+    fig.appendChild(cap);
+    slot.appendChild(fig);
+    img.addEventListener("load", buildAnchors);
+  }
+
+  var storyEntered = false;
+  function enterStory() {
+    if (storyEntered) return;
+    storyEntered = true;
+    gated = false;
+    document.body.classList.remove("gated");
+    document.body.classList.add("entered");
+    window.scrollTo(0, 0);
+    buildAnchors();
+  }
+
+  function startDive() {
+    if (phase !== "universe") return;
+    document.body.classList.add("entered"); // the gate text bows out
+    if (reduced) { enterStory(); phase = "system"; return; }
+    skyOverride = JD_BIRTH; // arrive at the sky she was born under
+    phase = "dive";
+    diveStart = performance.now();
+  }
+
+  function showEnter(label) {
+    gateBtn.disabled = false;
+    gateBtn.innerHTML = label;
+    gateBtn.onclick = startDive;
+  }
+
+  gateBtn.onclick = function () { gateFile.click(); };
+
+  fetch("/tonight", { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+    .then(function (info) {
+      if (info.file) {
+        setFinalPhoto(info.file);
+        gateNote.innerHTML =
+          "Every small light in this dark is a whole galaxy — and one of " +
+          "them is ours. Tonight’s photograph is already inside the story.";
+        showEnter("Come home ✧");
+        var alt = document.createElement("button");
+        alt.className = "gate-alt";
+        alt.type = "button";
+        alt.textContent = "take a new photo instead";
+        alt.onclick = function () { gateFile.click(); };
+        gateStatus.parentNode.insertBefore(alt, gateStatus);
+      }
+    })
+    .catch(function () {
+      // no upload server (local preview) — don't lock the door
+      showEnter("Enter ✧");
+    });
+
+  gateFile.addEventListener("change", function () {
+    var f = gateFile.files && gateFile.files[0];
+    if (!f) return;
+    gateBtn.disabled = true;
+    gateStatus.textContent = "keeping this one forever…";
+    fetch("/upload", { method: "POST", body: f })
+      .then(function (r) {
+        return r.json().then(function (j) { if (!r.ok) throw j; return j; });
+      })
+      .then(function (j) {
+        setFinalPhoto(j.file);
+        gateStatus.textContent = "it’s in — come home ✧";
+        setTimeout(startDive, 900);
+      })
+      .catch(function () {
+        gateBtn.disabled = false;
+        gateStatus.textContent = "that didn’t save — try once more?";
+      });
+  });
+
+  // ---------- Drawing ----------
+  var shownJD = jdToday();
+  var skyOverride = null; // when set, the sky clock ignores scroll (arrival ceremony)
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function drawStars(now, ox, oy, alphaMul) {
+    if (alphaMul === 0) return;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      var tw = reduced ? 1 : 0.65 + 0.35 * Math.sin(now * 0.001 * s.sp + s.ph);
+      ctx.globalAlpha = s.base * tw * (alphaMul == null ? 1 : alphaMul);
+      ctx.fillStyle = "#dfe6f5";
+      ctx.beginPath();
+      var sx = (((s.x + (ox || 0)) % W) + W) % W;
+      var sy = (((s.y + (oy || 0)) % H) + H) % H;
+      ctx.arc(sx, sy, s.r, 0, 6.2832);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawSolar(c) {
+    // Orbit paths
+    ctx.lineWidth = 1;
+    for (var o = 0; o < orbitCache.length; o++) {
+      var pts = orbitCache[o];
+      ctx.strokeStyle = "rgba(217, 195, 163, 0.14)";
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (var k = 1; k < pts.length; k++) ctx.lineTo(pts[k][0], pts[k][1]);
+      ctx.stroke();
+    }
+
+    // Sun
+    var g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 26);
+    g.addColorStop(0, "rgba(255, 236, 190, 1)");
+    g.addColorStop(0.35, "rgba(240, 200, 120, 0.9)");
+    g.addColorStop(1, "rgba(240, 200, 120, 0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(c.x, c.y, 26, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = "#ffe9b8";
+    ctx.beginPath(); ctx.arc(c.x, c.y, 5.5, 0, 6.2832); ctx.fill();
+
+    // Planets at the current (scroll-driven) date
+    ctx.font = (W < 700 ? "9.5px" : "11px") + " Georgia, serif";
+    for (var p = 0; p < PLANETS.length; p++) {
+      var pl = PLANETS[p];
+      var pos = position(pl, shownJD);
+      var r = Math.sqrt(pos.x * pos.x + pos.y * pos.y);
+      var f = squash(r) / r;
+      var x = c.x + pos.x * f * c.s;
+      var y = c.y - pos.y * f * c.s;
+
+      if (pl.ring) {
+        ctx.strokeStyle = "rgba(230, 211, 163, 0.75)";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.ellipse(x, y, pl.size + 5.5, (pl.size + 5.5) * 0.42, -0.5, 0, 6.2832);
+        ctx.stroke();
+      }
+      var pg = ctx.createRadialGradient(x - pl.size * 0.3, y - pl.size * 0.3, 0, x, y, pl.size);
+      pg.addColorStop(0, "#ffffff");
+      pg.addColorStop(0.25, pl.color);
+      pg.addColorStop(1, shade(pl.color));
+      ctx.fillStyle = pg;
+      ctx.beginPath(); ctx.arc(x, y, pl.size, 0, 6.2832); ctx.fill();
+
+      if (pl.name === "Earth") {
+        ctx.strokeStyle = "rgba(127, 178, 229, 0.6)";
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x, y, pl.size + 3.5, 0, 6.2832); ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(233, 226, 212, 0.65)";
+      ctx.fillText(pl.name, x + pl.size + 5, y + 3.5);
+    }
+  }
+
+  // On phones the gate text sits high — nudge the galaxy field down clear of it
+  function uniDropY() { return W < 1100 ? H * 0.08 : 0; }
+
+  function drawUniverseScene(now, aStars, aGal, sizeMul) {
+    var c0 = sunCenter();
+    var c = { x: c0.x, y: c0.y + uniDropY() };
+    var px = upan.x + 26 * Math.sin(now * 0.00004); // gentle idle drift
+    var py = upan.y + 18 * Math.cos(now * 0.000031);
+    if (aGal > 0) {
+      drawGalaxyField(c, px, py, uzoom, aGal, sizeMul);
+      var mx = c.x + (0 - px) * uzoom;
+      var my = c.y + (0 - py) * uzoom;
+      drawMilkyWay(mx, my, MW_R * uzoom * sizeMul, now * 0.00001, aGal);
+      ctx.globalAlpha = (0.45 + 0.25 * Math.sin(now * 0.0016)) * aGal;
+      ctx.fillStyle = "#d9c3a3";
+      ctx.font = "italic 13px Georgia, serif";
+      ctx.fillText("ours ✧", mx + MW_R * uzoom + 10, my + 4);
+      ctx.globalAlpha = 1;
+    }
+    drawStars(now, -px * 0.05, -py * 0.05, aStars);
+  }
+
+  function drawUniverse(now) { drawUniverseScene(now, 1, 1, 1); }
+
+  /* In the beginning: a point, a flash, the first light cooling,
+     and structure condensing out of the dark. ~8 seconds.        */
+  function drawGenesis(now) {
+    var c0 = sunCenter();
+    var c = { x: c0.x, y: c0.y + uniDropY() };
+    var maxDim = Math.sqrt(W * W + H * H);
+
+    if (!genStarted) {
+      // the seed of everything, pulsing quietly while the words arrive
+      var b = 0.45 + 0.2 * Math.sin(now * 0.0035);
+      var pr0 = (1.2 + 0.6 * Math.sin(now * 0.02)) * 7;
+      var g0 = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, pr0);
+      g0.addColorStop(0, "rgba(255, 249, 235, " + b.toFixed(3) + ")");
+      g0.addColorStop(0.25, "rgba(255, 226, 170, " + (b * 0.55).toFixed(3) + ")");
+      g0.addColorStop(1, "rgba(255, 226, 170, 0)");
+      ctx.fillStyle = g0;
+      ctx.beginPath(); ctx.arc(c.x, c.y, pr0, 0, 6.2832); ctx.fill();
+      return;
+    }
+
+    var t = genFixedT !== null ? genFixedT : genT;
+
+    // stars, then galaxies, condense beneath the fading glow
+    var aStars = smooth((t - 0.50) / 0.26);
+    var aGal = smooth((t - 0.58) / 0.34);
+    if (aStars > 0 || aGal > 0) {
+      drawUniverseScene(now, aStars, aGal, 0.5 + 0.5 * aGal);
+    }
+
+    // the first light — the CMB, its fluctuations evolving as space stretches
+    var cmbA = smooth((t - 0.15) / 0.09) * (1 - smooth((t - 0.50) / 0.22));
+    if (cmbA > 0 && cmbFrames.length) {
+      var age = clamp01((t - 0.15) / 0.45);        // 0..1 across the CMB era
+      var fpos = age * (cmbFrames.length - 1);
+      var f0 = Math.floor(fpos);
+      var f1 = Math.min(cmbFrames.length - 1, f0 + 1);
+      var ff = fpos - f0;
+      var grow = 1.08 + age * 0.55;                 // expansion
+      var ts = Math.max(W, H) * 1.15 * grow;
+      ctx.save();
+      ctx.translate(W / 2, H / 2);
+      ctx.rotate(age * 0.06 - 0.03);
+      ctx.globalAlpha = cmbA;
+      ctx.drawImage(cmbFrames[f0], -ts / 2 - age * 30, -ts / 2 - age * 18, ts, ts);
+      if (ff > 0) {
+        ctx.globalAlpha = cmbA * ff;
+        ctx.drawImage(cmbFrames[f1], -ts / 2 - age * 30, -ts / 2 - age * 18, ts, ts);
+      }
+      ctx.restore();
+      // sky-dome vignette: the map reads as projected on the sky, not wallpaper
+      var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35,
+                                        W / 2, H / 2, Math.max(W, H) * 0.75);
+      vg.addColorStop(0, "rgba(5, 3, 10, 0)");
+      vg.addColorStop(1, "rgba(5, 3, 10, " + (0.5 * cmbA).toFixed(3) + ")");
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+      // cooling: the glow dims to embers as structure takes over
+      var cool = smooth((t - 0.34) / 0.22);
+      ctx.fillStyle = "rgba(10, 4, 6, " + (cool * cmbA * 0.85).toFixed(3) + ")";
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1;
+    }
+
+    // the singularity, then the flash
+    if (t < 0.34) {
+      var seed = clamp01(t / 0.10);
+      var flashP = clamp01((t - 0.10) / 0.20);
+      if (flashP <= 0) {
+        var pr = (1.2 + 2.2 * seed + 0.6 * Math.sin(now * 0.02)) * 7;
+        var pgl = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, pr);
+        pgl.addColorStop(0, "rgba(255, 249, 235, " + (0.5 + 0.45 * seed).toFixed(3) + ")");
+        pgl.addColorStop(0.25, "rgba(255, 226, 170, " + (0.28 + 0.27 * seed).toFixed(3) + ")");
+        pgl.addColorStop(1, "rgba(255, 226, 170, 0)");
+        ctx.fillStyle = pgl;
+        ctx.beginPath(); ctx.arc(c.x, c.y, pr, 0, 6.2832); ctx.fill();
+      } else {
+        var R = Math.pow(flashP, 1.7) * maxDim * 0.9 + 4;
+        var coreA = 1 - smooth((flashP - 0.55) / 0.45);
+        var fg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, R);
+        fg.addColorStop(0, "rgba(255, 252, 244, " + coreA.toFixed(3) + ")");
+        fg.addColorStop(0.55, "rgba(255, 233, 188, " + (0.85 * coreA).toFixed(3) + ")");
+        fg.addColorStop(0.85, "rgba(244, 158, 76, " + (0.55 * coreA).toFixed(3) + ")");
+        fg.addColorStop(1, "rgba(210, 90, 40, 0)");
+        ctx.fillStyle = fg;
+        ctx.beginPath(); ctx.arc(c.x, c.y, R, 0, 6.2832); ctx.fill();
+        // white-out at the moment of creation
+        var white = Math.sin(Math.PI * clamp01(flashP * 1.25)) * (1 - flashP * 0.55);
+        if (white > 0) {
+          ctx.fillStyle = "rgba(255, 250, 240, " + (white * 0.95).toFixed(3) + ")";
+          ctx.fillRect(0, 0, W, H);
+        }
+        // shockwave
+        ctx.strokeStyle = "rgba(255, 240, 210, " + (0.6 * (1 - flashP)).toFixed(3) + ")";
+        ctx.lineWidth = 2 + 8 * (1 - flashP);
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, Math.pow(flashP, 1.3) * maxDim * 0.7, 0, 6.2832);
+        ctx.stroke();
+      }
+    }
+
+    if (t >= 0.82) document.body.classList.remove("genesis");
+    if (t >= 1 && genFixedT === null) phase = "universe";
+  }
+
+  function drawDive(now) {
+    var t = diveFixedT !== null ? diveFixedT : clamp01((now - diveStart) / DIVE_MS);
+    var c = sunCenter();
+    var pA = smooth(t / 0.38);          // the universe rushes past
+    var pB = smooth((t - 0.34) / 0.40); // into our galaxy's arms
+    var pC = smooth((t - 0.52) / 0.48); // home resolves
+
+    drawStars(now, 0, 0);
+
+    var drop = uniDropY() * (1 - pA);
+    var cA = { x: c.x, y: c.y + drop };
+
+    if (pA < 1) {
+      var F = Math.exp(Math.log(18) * pA);
+      drawGalaxyField(cA, upan.x * (1 - pA), upan.y * (1 - pA),
+                      uzoom * F, Math.max(0, 1 - pA * 1.5));
+    }
+
+    // our galaxy swallows the screen, anchored so one arm arrives at centre
+    var R0 = MW_R * uzoom;
+    var RA = Math.min(W, H) * 0.52;
+    var R = R0 * Math.pow(RA / R0, pA) * Math.pow(16, pB);
+    var mwAlpha = (0.35 + 0.65 * pA) * (1 - smooth((pB - 0.55) / 0.45));
+    var ox = Math.cos(2.1) * 0.52 * R * pB;
+    var oy = Math.sin(2.1) * 0.52 * R * pB;
+    var mx = cA.x + (0 - upan.x * (1 - pA)) * uzoom - ox;
+    var my = cA.y + (0 - upan.y * (1 - pA)) * uzoom - oy;
+    drawMilkyWay(mx, my, R, now * 0.00001, mwAlpha);
+
+    // star-rush through the arm
+    var rush = Math.sin(Math.PI * clamp01((t - 0.30) / 0.50));
+    if (rush > 0) {
+      ctx.strokeStyle = "rgba(223, 230, 245, 0.55)";
+      ctx.lineWidth = 1;
+      for (var i = 0; i < 64; i++) {
+        var s = stars[i % stars.length];
+        if (!s) break;
+        var ang = Math.atan2(s.y - c.y, s.x - c.x);
+        var d0 = 30 + ((i * 53) % 240) + rush * 260;
+        var len = 10 + rush * 90 * s.sp;
+        ctx.globalAlpha = rush * 0.4 * s.base;
+        ctx.beginPath();
+        ctx.moveTo(c.x + Math.cos(ang) * d0, c.y + Math.sin(ang) * d0);
+        ctx.lineTo(c.x + Math.cos(ang) * (d0 + len), c.y + Math.sin(ang) * (d0 + len));
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // a gold pulse where home will be
+    if (pB > 0.15 && pC < 0.4) {
+      var pulse = Math.sin(Math.PI * clamp01((pB - 0.15) / 0.85)) * (1 - pC / 0.4);
+      var pg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 30);
+      pg.addColorStop(0, "rgba(255, 233, 184, " + (0.9 * pulse).toFixed(3) + ")");
+      pg.addColorStop(1, "rgba(255, 233, 184, 0)");
+      ctx.fillStyle = pg;
+      ctx.beginPath(); ctx.arc(c.x, c.y, 30, 0, 6.2832); ctx.fill();
+    }
+
+    // home: the solar system resolves into place
+    if (pC > 0) {
+      var k = Math.pow(0.04, 1 - pC);
+      ctx.save();
+      ctx.globalAlpha = smooth(pC * 1.7);
+      ctx.translate(c.x, c.y);
+      ctx.scale(k, k);
+      ctx.translate(-c.x, -c.y);
+      drawSolar(c);
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
+
+    if (t >= 0.8) enterStory();
+    if (t >= 1 && diveFixedT === null) {
+      phase = "system";
+      skyOverride = null; // top of page = hero anchor = 7 July 1996 anyway
+      arrivalCaption();
+    }
+  }
+
+  function draw(now) {
+    if (!orbitCache) buildOrbits();
+    ctx.clearRect(0, 0, W, H);
+    if (phase === "genesis") { drawGenesis(now); return; }
+    if (phase === "universe") { drawUniverse(now); return; }
+    if (phase === "dive") { drawDive(now); return; }
+    drawStars(now, 0, 0);
+    drawSolar(sunCenter());
+  }
+
+  function shade(hex) {
+    var n = parseInt(hex.slice(1), 16);
+    var r = (n >> 16) & 255, gg = (n >> 8) & 255, b = n & 255;
+    return "rgb(" + Math.floor(r * 0.45) + "," + Math.floor(gg * 0.45) + "," + Math.floor(b * 0.45) + ")";
+  }
+
+  function frame(now) {
+    updateIntroScrub();
+    var tgt = skyOverride !== null ? skyOverride : targetJD();
+    shownJD += (tgt - shownJD) * (reduced ? 1 : 0.075);
+    if (Math.abs(tgt - shownJD) < 0.02) shownJD = tgt;
+    updateHUD(shownJD);
+    draw(now || 0);
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- Reveal-on-scroll ----------
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+
+  // Rebuild anchors when layout shifts (images loading changes offsets)
+  var rebuild = function () { buildAnchors(); orbitCache = null; };
+  window.addEventListener("load", rebuild);
+  document.querySelectorAll("img").forEach(function (img) {
+    img.addEventListener("load", buildAnchors);
+  });
+
+  initUniverse();
+
+  /* ---------- The opening, scrubbed by scroll ----------
+     An invisible 520vh runway is the timeline: the first stretch types the
+     quote out under her thumb, the rest drives the big bang frame by frame. */
+  var narrEl = document.getElementById("narrLine");
+  var capEl = document.getElementById("caption");
+  var skipBtn = document.getElementById("skipIntro");
+  var hintEl = document.getElementById("scrollHint");
+  var spacerEl = document.getElementById("introScroll");
+  var NARR = "In the beginning there was nothing — and out of that nothing, came everything.";
+  var QUOTE_FRAC = 0.24; // first quarter of the runway belongs to the words
+  var introActive = false, introEase = 0, narrShown = -1, capState = "";
+
+  function setCaption(text) {
+    if (capState === text) return;
+    capState = text;
+    if (text) { capEl.textContent = text; capEl.classList.add("show"); }
+    else capEl.classList.remove("show");
+  }
+
+  function updateIntroScrub() {
+    if (!introActive) return;
+    var span = Math.max(1, spacerEl.offsetHeight - window.innerHeight);
+    var s = clamp01(window.scrollY / span);
+    introEase += (s - introEase) * 0.14;
+    if (s >= 0.999 && introEase > 0.97) { finalizeIntro(); return; }
+
+    hintEl.classList.toggle("show", s < 0.02);
+
+    // the quote writes (and unwrites) itself with the scroll
+    var q = clamp01(introEase / (QUOTE_FRAC * 0.82));
+    var chars = Math.round(q * NARR.length);
+    if (chars !== narrShown) {
+      narrShown = chars;
+      narrEl.textContent = NARR.slice(0, chars);
+      narrEl.classList.toggle("typing", chars > 0 && chars < NARR.length);
+    }
+    narrEl.classList.toggle("faded", chars === 0 || introEase > QUOTE_FRAC * 0.96);
+
+    // the rest of the runway is the bang itself
+    genStarted = introEase > QUOTE_FRAC;
+    genT = clamp01((introEase - QUOTE_FRAC) / (1 - QUOTE_FRAC));
+
+    if (genT > 0.17 && genT < 0.45) {
+      setCaption("Then — light. The very first there ever was.");
+    } else if (genT > 0.52 && genT < 0.80) {
+      setCaption("And the light cooled, and gathered — into stars, into galaxies, into us.");
+    } else {
+      setCaption("");
+    }
+  }
+
+  function finalizeIntro() {
+    if (!introActive && phase !== "genesis") return;
+    introActive = false;
+    document.body.classList.remove("introScrub", "genesis");
+    hintEl.classList.remove("show");
+    narrEl.classList.remove("typing");
+    narrEl.classList.add("faded");
+    setCaption("");
+    skipBtn.classList.add("gone");
+    window.scrollTo(0, 0);
+    genStarted = true;
+    genT = 1;
+    phase = "universe";
+  }
+
+  function skipIntro() { finalizeIntro(); }
+  skipBtn.addEventListener("click", skipIntro);
+
+  /* Arrival: the dive lands on the sky of 7 July 1996 and stays there —
+     the hero section is anchored to that date, so her own scrolling is
+     what winds the thirty trips forward into the story. */
+  function arrivalCaption() {
+    setCaption("This was the sky on the night you were born. Scroll — thirty trips are waiting.");
+    var watch = function () {
+      if (window.scrollY > 140) {
+        setCaption("");
+        window.removeEventListener("scroll", watch);
+      }
+    };
+    window.addEventListener("scroll", watch);
+  }
+
+  // Debug hooks: ?bang=0.5 / ?divet=0.5 freeze those animations for inspection
+  var qs = new URLSearchParams(location.search);
+  if (qs.get("bang") !== null) {
+    genFixedT = parseFloat(qs.get("bang")) || 0;
+    genStarted = true;
+    skipBtn.classList.add("gone");
+    if (genFixedT >= 0.82) document.body.classList.remove("genesis");
+  }
+  if (qs.get("divet") !== null) {
+    diveFixedT = parseFloat(qs.get("divet")) || 0;
+    phase = "dive";
+    skipBtn.classList.add("gone");
+    document.body.classList.add("entered");
+  }
+  if (reduced && phase === "genesis") {
+    // no fireworks for reduced motion — open on the formed universe
+    skipIntro();
+  }
+  if (phase === "genesis" && genFixedT === null) {
+    introActive = true;
+    document.body.classList.add("introScrub");
+    setTimeout(function () { if (introActive) skipBtn.classList.add("show"); }, 1800);
+  }
+
+  resize(true);
+  buildAnchors();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
