@@ -458,6 +458,73 @@
     figure.shot { max-width: none; }
   }
 
+  /* ---------- The lock (public site only) ---------- */
+  #lock {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.4rem;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(217, 195, 163, 0.08), transparent 55%),
+      rgba(7, 11, 24, 0.94);
+    transition: opacity 1s ease;
+  }
+  #lock.open { opacity: 0; pointer-events: none; }
+  .lock-card { max-width: 26em; }
+  .lock-cake {
+    font-size: 2.6rem;
+    animation: drift 2.6s ease-in-out infinite;
+    margin-bottom: 1.2rem;
+  }
+  .lock-card h2 {
+    font-weight: normal;
+    font-style: italic;
+    font-size: clamp(1.7rem, 5vw, 2.4rem);
+    color: var(--ink);
+  }
+  .lock-card .lock-note {
+    margin-top: 1rem;
+    color: var(--ink-dim);
+    font-style: italic;
+    font-size: 1.02rem;
+  }
+  #lockForm { margin-top: 2rem; }
+  #lockPass {
+    display: block;
+    width: min(100%, 22em);
+    margin: 0 auto 1.1rem;
+    background: rgba(13, 19, 40, 0.8);
+    border: 1px solid rgba(217, 195, 163, 0.4);
+    border-radius: 999px;
+    padding: 0.8rem 1.3rem;
+    font: italic 1rem Georgia, serif;
+    font-size: 16px; /* keeps iOS from zooming the field */
+    color: var(--ink);
+    text-align: center;
+    outline: none;
+  }
+  #lockPass:focus { border-color: var(--gold); }
+  #lockPass::placeholder { color: #6d6a80; }
+  .lock-hint {
+    margin-top: 1.1rem;
+    min-height: 1.3em;
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--rose);
+  }
+  .lock-card.shake { animation: shake 0.45s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-9px); }
+    55% { transform: translateX(7px); }
+    80% { transform: translateX(-4px); }
+  }
+  body.locked { overflow: hidden !important; }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .hero .eyebrow, .hero h1, .hero .subtitle, .hero .scroll-hint { animation: none; }
@@ -468,6 +535,24 @@
 <body class="gated genesis">
 
 <canvas id="sky" aria-hidden="true"></canvas>
+
+<!-- ============ THE LOCK (public site only) ============ -->
+<div id="lock" hidden>
+  <div class="lock-card">
+    <div class="lock-cake">&#127874;</div>
+    <h2>For the Birthday Girl</h2>
+    <p class="lock-note">
+      This little universe is a gift, and it opens like a wish &mdash;
+      with the magic words.
+    </p>
+    <form id="lockForm">
+      <input id="lockPass" type="password" placeholder="the magic words"
+             autocomplete="off" autocapitalize="none" spellcheck="false">
+      <button class="gate-btn" type="submit">make a wish &#10022;</button>
+    </form>
+    <p class="lock-hint" id="lockHint"></p>
+  </div>
+</div>
 
 <!-- ============ NARRATION ============ -->
 <div id="narration"><p id="narrLine"></p></div>
@@ -1759,6 +1844,57 @@
     document.body.classList.add("introScrub");
     setTimeout(function () { if (introActive) skipBtn.classList.add("show"); }, 1800);
   }
+
+  /* ---------- The lock: public site only ----------
+     The home-wifi version's lock is the photo gate itself; out on the open
+     internet the site asks for the magic words. Client-side by necessity
+     (GitHub Pages is static) — only a SHA-256 of the words lives here. */
+  (function () {
+    var HOME = location.hostname === "192.168.0.15" ||
+               location.hostname === "localhost" ||
+               location.protocol === "file:";
+    var lockEl = document.getElementById("lock");
+    var KEY = "30bday-unlocked";
+    var HASH = "44f225efdb82764aa4eca813bb64472897b16924d82c9c51a63900464ebf1d67";
+    var stored = null;
+    try { stored = localStorage.getItem(KEY); } catch (e) {}
+    if (HOME || stored === "yes" || !window.crypto || !crypto.subtle) {
+      lockEl.remove();
+      return;
+    }
+    lockEl.hidden = false;
+    document.body.classList.add("locked");
+    var form = document.getElementById("lockForm");
+    var pass = document.getElementById("lockPass");
+    var hint = document.getElementById("lockHint");
+    var card = lockEl.querySelector(".lock-card");
+    var tries = 0;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = (pass.value || "").toLowerCase().replace(/\s+/g, "");
+      crypto.subtle.digest("SHA-256", new TextEncoder().encode(v)).then(function (buf) {
+        var hex = "";
+        var a = new Uint8Array(buf);
+        for (var i = 0; i < a.length; i++) hex += ("0" + a[i].toString(16)).slice(-2);
+        if (hex === HASH) {
+          try { localStorage.setItem(KEY, "yes"); } catch (err) {}
+          hint.textContent = "wish granted ✧";
+          document.body.classList.remove("locked");
+          lockEl.classList.add("open");
+          setTimeout(function () { lockEl.remove(); }, 1100);
+        } else {
+          tries++;
+          pass.value = "";
+          card.classList.remove("shake");
+          void card.offsetWidth; // restart the animation
+          card.classList.add("shake");
+          hint.textContent = tries < 2
+            ? "not quite — try again, birthday girl"
+            : "hint: the three words we argue about — times thirty, all one word";
+        }
+      });
+    });
+  })();
 
   resize(true);
   buildAnchors();
