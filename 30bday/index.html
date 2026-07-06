@@ -1901,11 +1901,9 @@
                location.hostname === "localhost" ||
                location.protocol === "file:";
     var lockEl = document.getElementById("lock");
-    var KEY = "30bday-unlocked";
     var HASH = "44f225efdb82764aa4eca813bb64472897b16924d82c9c51a63900464ebf1d67";
-    var stored = null;
-    try { stored = localStorage.getItem(KEY); } catch (e) {}
-    if (HOME || stored === "yes" || !window.crypto || !crypto.subtle) {
+    /* The magic words are asked for on every visit — nothing is remembered. */
+    if (HOME || !window.crypto || !crypto.subtle) {
       lockEl.remove();
       return;
     }
@@ -1924,7 +1922,6 @@
         var a = new Uint8Array(buf);
         for (var i = 0; i < a.length; i++) hex += ("0" + a[i].toString(16)).slice(-2);
         if (hex === HASH) {
-          try { localStorage.setItem(KEY, "yes"); } catch (err) {}
           hint.textContent = "wish granted ✧";
           document.body.classList.remove("locked");
           lockEl.classList.add("open");
